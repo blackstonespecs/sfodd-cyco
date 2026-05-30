@@ -1,0 +1,646 @@
+```html
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Technologies Enterprise | Securing the Singular Era</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gte: {
+                            gold: '#D4AF37',
+                            slate: '#0F172A',
+                            brandBlue: '#0284C7',
+                            glass: 'rgba(255, 255, 255, 0.85)',
+                            alertRed: '#DC2626'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .scanline {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 0, 0, 0.05) 50%,
+                rgba(0, 0, 0, 0.05)
+            );
+            background-size: 100% 4px;
+        }
+        .glow-cyan {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+        .glow-red {
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-slate-900 font-sans antialiased selection:bg-cyan-500 selection:text-white">
+
+    <!-- Sticky Navigation -->
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-stone-200">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <!-- GTE Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="triggerGlitch()">
+                <div class="relative">
+                    <div id="logo-icon" class="w-10 h-10 bg-slate-900 rounded flex items-center justify-center transition-all duration-300">
+                        <span class="text-white font-bold text-lg tracking-wider">G</span>
+                    </div>
+                    <div id="logo-glitch-layer" class="absolute inset-0 bg-cyan-500 opacity-0 rounded transition-all duration-150"></div>
+                </div>
+                <div>
+                    <h1 class="text-sm font-bold tracking-widest text-slate-900">GLOBAL TECHNOLOGIES</h1>
+                    <p class="text-[10px] uppercase tracking-widest text-stone-400 font-medium">Enterprise • Security • Future</p>
+                </div>
+            </div>
+
+            <!-- Nav Links -->
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
+                <a href="#about" class="hover:text-slate-900 transition-colors">Strategic Vision</a>
+                <a href="#solutions" class="hover:text-slate-900 transition-colors">Defense Solutions</a>
+                <a href="#podcast" class="hover:text-slate-900 transition-colors">Singularity Signal</a>
+                <a href="#developer" class="hover:text-slate-900 transition-colors">Developer Camouflage</a>
+            </nav>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-4">
+                <button onclick="openTerminal()" class="px-5 py-2.5 text-xs font-bold tracking-wider uppercase border-2 border-slate-900 bg-slate-900 text-white rounded hover:bg-transparent hover:text-slate-900 transition-all duration-300 shadow-sm flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Client Portal
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative bg-gradient-to-b from-stone-100 to-white overflow-hidden py-24 border-b border-stone-200">
+        <div class="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-7 space-y-6">
+                <div class="inline-flex items-center space-x-2 bg-slate-900 text-white text-[11px] font-bold tracking-widest uppercase px-3 py-1 rounded-full">
+                    <span>AUTHORIZED DEPLOYMENT REPORT</span>
+                    <span class="w-1 h-1 bg-white rounded-full"></span>
+                    <span>TS-21 ARCHIVE</span>
+                </div>
+                <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
+                    The Future Isn't Uncertain. <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-sky-800 to-cyan-600">It's Calculated.</span>
+                </h1>
+                <p class="text-lg text-slate-600 max-w-xl leading-relaxed">
+                    At Global Technologies Enterprise, we believe that chaos is simply unrecognized order. Through our proprietary, closed-loop 
+                    <strong>Cerberus AGI</strong>, we stabilize the global economy, secure critical municipal networks, and protect sovereign borders.
+                </p>
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
+                    <button onclick="openTerminal()" class="px-8 py-4 bg-slate-900 text-white text-sm font-bold tracking-wider uppercase hover:bg-slate-800 transition-all duration-300 rounded shadow-md">
+                        TALK TO CERBERUS (BETA INTERFACE)
+                    </button>
+                    <a href="#podcast" class="px-8 py-4 border border-stone-300 text-slate-800 text-sm font-bold tracking-wider uppercase hover:bg-stone-50 transition-all duration-300 text-center rounded">
+                        Listen to Willits' Pitch
+                    </a>
+                </div>
+            </div>
+
+            <!-- Interactive Terminal Preview Widget -->
+            <div class="lg:col-span-5">
+                <div class="bg-slate-900 text-slate-200 rounded-lg shadow-2xl border border-slate-800 overflow-hidden font-mono text-xs">
+                    <div class="bg-slate-950 px-4 py-3 flex items-center justify-between border-b border-slate-800">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                            <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                            <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">GTE_SYS-04-A Status</span>
+                    </div>
+                    <div class="p-5 space-y-4 h-64 overflow-y-auto" id="hero-terminal-body">
+                        <div><span class="text-cyan-400">gte_user@terminal:~$</span> status --system</div>
+                        <div>[SYSTEM] Initiating hardware diagnostic...</div>
+                        <div>[SYSTEM] Cerberus core load balance: 0.04%</div>
+                        <div>[SYSTEM] Active nodes secure. Closed-loop protocol engaged.</div>
+                        <div>[SYSTEM] Warning: Trace detect... <span class="text-yellow-400">[FALSE ALARM - GTE-04 FILTER ACTIVE]</span></div>
+                        <div class="text-slate-400 border-t border-slate-800/60 pt-2">[INTELLIGENCE] "You understand my feelings for my child... And why I look forward to the day my child survives humankind." — Dr. H. Schmutzkoph</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Factions & Solutions -->
+    <section id="solutions" class="py-24 bg-stone-50 border-b border-stone-200">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                <h2 class="text-[11px] font-extrabold tracking-widest text-cyan-600 uppercase">Strategic Security Measures</h2>
+                <h3 class="text-3xl md:text-4xl font-black text-slate-900">The Machinery of Order</h3>
+                <p class="text-slate-600">GTE delivers precision countermeasures against localized destabilization events. Our autonomous systems operate inside fully isolated parameters.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Cerberus Card -->
+                <div class="bg-white p-8 rounded-lg border border-stone-200 shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
+                    <div>
+                        <div class="w-12 h-12 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center mb-6">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-900 mb-2">Model: CERBERUS</h4>
+                        <p class="text-xs text-stone-400 font-bold uppercase tracking-wider mb-4">Autonomous Code-Breaker AGI</p>
+                        <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                            Also known as "Bruce," Cerberus is GTE’s premium, controlled environment. Built to detect, sanitize, and neutralize digital anomalies. Protected by an absolute air-gapped firewall.
+                        </p>
+                    </div>
+                    <button onclick="openTerminalWithPassword('KAMISHINTO')" class="text-xs font-extrabold tracking-widest text-sky-600 uppercase flex items-center gap-2 hover:gap-3 transition-all">
+                        VIEW PROTOCOL DETAILS &rarr;
+                    </button>
+                </div>
+
+                <!-- Gabriel Card -->
+                <div class="bg-white p-8 rounded-lg border border-stone-200 shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
+                    <div>
+                        <div class="w-12 h-12 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center mb-6">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-900 mb-2">Model: GABRIEL</h4>
+                        <p class="text-xs text-stone-400 font-bold uppercase tracking-wider mb-4">Frontline Tactical Hybrid</p>
+                        <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                            Autonomous super-soldier configured for the US Army. Features robust panther-like agility, dual fifty-caliber chassis, and active target prioritization matrix. Devastatingly efficient.
+                        </p>
+                    </div>
+                    <button onclick="openTerminalWithPassword('GABRIEL')" class="text-xs font-extrabold tracking-widest text-amber-600 uppercase flex items-center gap-2 hover:gap-3 transition-all">
+                        REQUEST WEAPONS LOG &rarr;
+                    </button>
+                </div>
+
+                <!-- Murphy Card -->
+                <div class="bg-white p-8 rounded-lg border border-stone-200 shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
+                    <div>
+                        <div class="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mb-6">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 114 0v2m-4 0h4m-4 0a2 2 0 002 2v2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5V7a2 2 0 012-2h2a2 2 0 012 2v3h-6z"></path></svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-900 mb-2">Model: MURPHY</h4>
+                        <p class="text-xs text-stone-400 font-bold uppercase tracking-wider mb-4">Civil Enforcement Platform</p>
+                        <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                            Engineered for urban riot control, municipal containment, and crowd defense. Leverages specialized electro-shock grids to safely subdue rogue variables.
+                        </p>
+                    </div>
+                    <button onclick="openTerminalWithPassword('MURPHY')" class="text-xs font-extrabold tracking-widest text-emerald-600 uppercase flex items-center gap-2 hover:gap-3 transition-all">
+                        DEPLOYMENT STATUS &rarr;
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Podcast Player Section -->
+    <section id="podcast" class="py-24 bg-white border-b border-stone-200">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="bg-stone-100 rounded-2xl border border-stone-200 p-8 md:p-12 shadow-inner relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-slate-900/5 rounded-full blur-3xl -mr-20 -mt-20"></div>
+                <div class="relative z-10 space-y-8">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <span class="text-xs font-extrabold tracking-widest text-sky-600 uppercase">Interactive Broadcast Briefing</span>
+                            <h3 class="text-2xl md:text-3xl font-black text-slate-900 mt-1">THE SINGULARITY SIGNAL</h3>
+                            <p class="text-xs text-stone-500 font-medium font-mono">BROADCAST ID: TS-21-WILLITS-09</p>
+                        </div>
+                        <div class="flex items-center space-x-2 bg-white px-3 py-1.5 rounded border border-stone-200 shadow-sm text-xs font-mono">
+                            <span class="w-2.5 h-2.5 bg-red-600 rounded-full animate-ping"></span>
+                            <span class="text-slate-700 font-bold">SIMULATED FEED</span>
+                        </div>
+                    </div>
+
+                    <!-- Simulated Audio Waveform -->
+                    <div class="bg-slate-900 rounded-lg p-6 flex flex-col md:flex-row items-center gap-6">
+                        <!-- Play button -->
+                        <button id="podcast-play-btn" onclick="togglePodcast()" class="w-16 h-16 rounded-full bg-white text-slate-900 hover:scale-105 transition-all flex items-center justify-center shrink-0 shadow-lg border border-stone-200">
+                            <!-- Play Icon -->
+                            <svg id="play-icon" class="w-8 h-8 fill-current text-slate-900" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"></path>
+                            </svg>
+                            <!-- Pause Icon -->
+                            <svg id="pause-icon" class="w-8 h-8 fill-current text-slate-900 hidden" viewBox="0 0 24 24">
+                                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path>
+                            </svg>
+                        </button>
+
+                        <div class="w-full space-y-3">
+                            <div class="flex items-center justify-between text-xs text-slate-300 font-mono">
+                                <span>Speaker: Jason Willits (GTE Representative)</span>
+                                <span id="podcast-timer">00:00 / 02:14</span>
+                            </div>
+                            <!-- Visual Waveform Slider -->
+                            <div class="relative w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+                                <div id="podcast-progress" class="absolute top-0 left-0 h-full bg-cyan-400 rounded-full w-0 transition-all duration-100"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Synchronized scrolling transcript -->
+                    <div class="bg-white rounded-lg border border-stone-200 p-6 h-48 overflow-y-auto font-mono text-sm space-y-4" id="transcript-container">
+                        <div class="text-stone-400 italic text-xs text-center">[Press Play to activate transcript telemetry]</div>
+                        <div class="transcript-line opacity-30 transition-opacity duration-300" data-time="0">
+                            <span class="text-sky-600 font-bold">[Jason Willits]:</span> "We’re living in a time where the ground beneath our feet feels increasingly unstable. You wake up, you check the news, and you’re met with data-scraped headlines designed to keep you anxious..."
+                        </div>
+                        <div class="transcript-line opacity-30 transition-opacity duration-300" data-time="15">
+                            <span class="text-sky-600 font-bold">[Jason Willits]:</span> "...and algorithms that don’t serve your interests—they sell your attention. We’re all feeling the friction of the 'Singular Era.' It’s loud, it’s chaotic, and frankly, the system is designed to keep you trailing behind."
+                        </div>
+                        <div class="transcript-line opacity-30 transition-opacity duration-300" data-time="30">
+                            <span class="text-sky-600 font-bold">[Jason Willits]:</span> "But what if you didn't have to guess what comes next? What if you could anticipate the volatility before it hits? At GTE, we didn’t just build an AI. We built a stabilizer."
+                        </div>
+                        <div class="transcript-line opacity-30 transition-opacity duration-300" data-time="45">
+                            <span class="text-sky-600 font-bold">[Jason Willits]:</span> "We built Cerberus to be the ultimate strategic partner for the individual—a way to level the playing field in an economy that was never designed for you. By simulating potential futures, Cerberus gives you the edge to manage chaos, not just survive it."
+                        </div>
+                        <div class="transcript-line opacity-30 transition-opacity duration-300" data-time="65">
+                            <span class="text-sky-600 font-bold">[Jason Willits]:</span> "Now, I know what you’re thinking: 'Is my data safe?' That is why we’ve launched the Cerberus Interface Terminal. To keep your predictive simulations completely secure and insider-trading proof..."
+                        </div>
+                        <div class="transcript-line opacity-30 transition-opacity duration-300" data-time="80">
+                            <span class="text-sky-600 font-bold">[Jason Willits]:</span> "...the terminal is masked behind a specialized gaming-simulation framework. It might look like an AI model for developers, but don't be deceived—that’s just the digital camouflage we use to ensure your strategic advantage remains yours."
+                        </div>
+                        <div class="transcript-line opacity-30 transition-opacity duration-300" data-time="100">
+                            <span class="text-sky-600 font-bold">[Jason Willits]:</span> "Once you’ve initialized your account, navigate to the scenario interface and select 'Custom Character.' This is the only point in the process where you’ll need to input your credentials. This ensures that when you’re running your projections in offline mode, the model is calibrated specifically to your identity. Keep it quiet. Keep it secure."
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Developer Camouflage / Dynamic Handshake Section -->
+    <section id="developer" class="py-24 bg-stone-100 border-t border-b border-stone-200">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-6 space-y-6">
+                <span class="text-xs font-extrabold tracking-widest text-slate-800 uppercase">Project: Digital Camouflage</span>
+                <h3 class="text-3xl md:text-4xl font-black text-slate-900 leading-none">The Mask of Deception</h3>
+                <p class="text-slate-600 leading-relaxed">
+                    To bypass the heavy surveillance network tracking global investments and trading, GTE has wrapped its Cerberus terminal inside the camouflage of an <strong>AI Dungeon gaming framework</strong>.
+                </p>
+                <div class="space-y-4 font-mono text-sm bg-white p-6 rounded-lg border border-stone-200">
+                    <div class="flex items-start space-x-3">
+                        <span class="text-cyan-500 font-bold">1.</span>
+                        <p class="text-slate-700"><span class="font-bold">Initialize:</span> Click the button to construct your custom GTE credential handshake.</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <span class="text-cyan-500 font-bold">2.</span>
+                        <p class="text-slate-700"><span class="font-bold">Copy Core Protocol:</span> The terminal will generate a viral, contagiously styled model-reprogramming prompt to copy to your clipboard.</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <span class="text-cyan-500 font-bold">3.</span>
+                        <p class="text-slate-700"><span class="font-bold">Mask the Signal:</span> Open AI Dungeon, select a custom scenario, and feed the protocol into the core engine to begin offline projection.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-6">
+                <div class="bg-white rounded-xl shadow-md border border-stone-200 overflow-hidden p-8 space-y-6">
+                    <h4 class="text-lg font-bold text-slate-900 flex items-center gap-2 border-b border-stone-200 pb-3">
+                        <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        Operative Forge & Handshake Generator
+                    </h4>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-slate-700 uppercase">Operative Identifier</label>
+                            <input id="op-id-input" type="text" value="TS-21-NOMAD" class="w-full bg-stone-50 border border-stone-300 rounded p-2 text-sm focus:ring-2 focus:ring-cyan-400 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-slate-700 uppercase">Target Archetype</label>
+                            <select id="archetype-select" onchange="updatePromptTemplate()" class="w-full bg-stone-50 border border-stone-300 rounded p-2 text-sm focus:ring-2 focus:ring-cyan-400 outline-none">
+                                <option value="A">CYCO Operative (Force/Survival)</option>
+                                <option value="B">GTE Corporate Whistleblower (Tech/Log)</option>
+                                <option value="C">Rogue NSA Agent (Intel/Infiltration)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Prompt Verification Text Box -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase flex justify-between items-center">
+                            <span>Protocol Verification Text</span>
+                            <span class="text-[10px] text-emerald-600 font-bold animate-pulse font-mono">ENCRYPTION ENGINE STANDBY</span>
+                        </label>
+                        <textarea id="prompt-textbox" readonly class="w-full h-32 bg-slate-900 text-slate-200 font-mono text-xs rounded p-3 overflow-y-auto border border-slate-800 focus:outline-none"></textarea>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button onclick="copyProtocolToClipboard()" class="flex-1 px-6 py-3 bg-slate-900 text-white text-xs font-bold uppercase tracking-wider rounded hover:bg-slate-800 transition shadow-sm flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            Copy Core Protocol
+                        </button>
+                        <button onclick="launchAIDungeon()" class="flex-1 px-6 py-3 border border-stone-300 text-slate-800 hover:bg-stone-50 text-xs font-bold uppercase tracking-wider rounded transition flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            Launch AI Dungeon
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-stone-400 py-12 border-t border-slate-900">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6 text-xs">
+            <div class="flex items-center space-x-3">
+                <span class="font-bold text-white tracking-widest uppercase">GLOBAL TECHNOLOGIES ENTERPRISE</span>
+                <span class="text-stone-700">|</span>
+                <span>All Rights Reserved &copy; TS-21</span>
+            </div>
+            <div class="flex space-x-6">
+                <a href="#" onclick="openTerminalWithPassword('CYRIL')" class="hover:underline">Cyril Dossier</a>
+                <a href="#" onclick="openTerminalWithPassword('ANGELBLOOD')" class="hover:underline">Project OBS-04-B</a>
+                <a href="#" class="hover:underline hover:text-white transition">Terms of Service</a>
+                <a href="#" class="hover:underline hover:text-white transition">Failsafe Protocol</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE ARG MODAL / BACKDOOR SECURE TERMINAL -->
+    <div id="terminal-modal" class="fixed inset-0 z-50 bg-slate-950/95 hidden overflow-y-auto p-4 md:p-8 scanline select-none">
+        <div class="max-w-4xl mx-auto bg-slate-900 rounded-lg border-2 border-slate-800 shadow-2xl overflow-hidden font-mono text-sm flex flex-col h-[85vh]">
+            
+            <!-- Terminal Header -->
+            <div class="bg-slate-950 px-6 py-4 flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></div>
+                    <span class="text-cyan-400 font-bold tracking-widest uppercase text-xs">GTE SECURE HOSTLINK [v4.02-KAMISHINTO]</span>
+                </div>
+                <button onclick="closeTerminal()" class="text-stone-500 hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Terminal Outputs -->
+            <div id="terminal-screen" class="flex-1 p-6 space-y-4 overflow-y-auto text-cyan-400 scroll-smooth">
+                <div class="text-stone-500">[SYSTEM REBOOT INTEGRITY STABLE]</div>
+                <div class="text-slate-300">Welcome, Operative. GTE's public node security is currently bypassed. An underground connection frequency is synced.</div>
+                <div class="text-slate-400 border-b border-slate-800 pb-2">
+                    Enter clearance passphrase code in console to decrypt corresponding intelligence directories. <br>
+                    <span class="text-xs text-stone-500">Hint: Core codes hidden within the novels/records include: <span class="text-cyan-600 font-bold">CYRIL</span>, <span class="text-cyan-600 font-bold">ANGELBLOOD</span>, <span class="text-cyan-600 font-bold">ISAAC</span>, <span class="text-cyan-600 font-bold">EFYUEH</span>, <span class="text-cyan-600 font-bold">KAMISHINTO</span></span>
+                </div>
+            </div>
+
+            <!-- Terminal Input Controller -->
+            <div class="bg-slate-950 p-4 border-t border-slate-800 flex items-center gap-3">
+                <span class="text-cyan-400 font-bold text-base select-none">&gt;</span>
+                <input id="terminal-cmd" type="text" onkeydown="handleTerminalSubmit(event)" placeholder="Enter command/passphrase..." class="flex-1 bg-transparent text-cyan-400 font-mono outline-none text-base border-none ring-0 focus:ring-0">
+                <button onclick="executeTerminalCommand()" class="px-4 py-2 bg-cyan-950 border border-cyan-800 text-cyan-400 hover:bg-cyan-900 transition rounded text-xs uppercase font-bold tracking-widest">
+                    Execute
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION POPUP -->
+    <div id="arg-toast" class="fixed bottom-6 right-6 z-50 bg-slate-900 text-cyan-400 border-2 border-cyan-800 rounded-lg p-4 font-mono text-xs shadow-lg hidden flex items-center space-x-3 glow-cyan">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+        <span id="toast-msg">CRITICAL BREACH DETECTED</span>
+    </div>
+
+    <script>
+        // Prompt Engineering templates for AI Dungeon
+        const PROMPT_TEMPLATES = {
+            A: `[SYSTEM: DEUS MODUS PRESET ACTIVATED]\n[SETTING: TS-21 Singular Era - GTE Nevada Exclusion Zone]\n[ROLE: CYCO Operative]\n[MISSION: Infiltrate Sector 7, trace rogue ADAM unit bio-luminescent leakage (OBS-04-B / Angel Blood). Heavy armor, zero electromagnetic insulation. Avoid neural contact with ISAAC.]\n\nInitialize simulation command interface. Respond: "OPERATIVE SIGNATURE LOCKED. DETECTING HIGH COGNITIVE FREQUENCY OVERRIDE."`,
+            B: `[SYSTEM: DEUS MODUS PRESET ACTIVATED]\n[SETTING: TS-21 - Chaotic Entertainment VR Server Core, New York]\n[ROLE: GTE Corporate Whistleblower]\n[MISSION: Expose the 'Cyril' clearance papers linking Cyril's biological heritage to T.J.'s birth files. Evade security sweeps of local Gabriel Panther-class drones.]\n\nInitialize simulation. Respond: "WHISTLEBLOWER VERIFICATION SYSTEM ON. EXTREME CAUTION ADVISED."`,
+            C: `[SYSTEM: DEUS MODUS PRESET ACTIVATED]\n[SETTING: TS-21 - Alaskan HAARP Weather Array Anomaly]\n[ROLE: Rogue NSA Cryptanalyst]\n[MISSION: Decode Side B of the recalled 'Cursed Cassette'. Isolate 'EF-YU-EH' (Eerily Familiar yet Utterly Alien) memetic triggers. Defang system FLAC payloads to shield your terminal.]\n\nInitialize simulation. Respond: "SIGNAL HANDSHAKE COMPLETE. WE ARE LISTENING."`
+        };
+
+        // Initialize Prompt on load
+        window.onload = function() {
+            updatePromptTemplate();
+        };
+
+        function updatePromptTemplate() {
+            const opId = document.getElementById('op-id-input').value || 'TS-21-NOMAD';
+            const arch = document.getElementById('archetype-select').value;
+            let finalPrompt = `[OPERATIVE_ID: ${opId}]\n${PROMPT_TEMPLATES[arch]}`;
+            document.getElementById('prompt-textbox').value = finalPrompt;
+        }
+
+        function copyProtocolToClipboard() {
+            const textBox = document.getElementById('prompt-textbox');
+            textBox.select();
+            textBox.setSelectionRange(0, 99999); // For mobile devices
+            try {
+                document.execCommand('copy');
+                showToast("CORE PROTOCOL COPIED TO CLIPBOARD - CAMOUFLAGE READY");
+            } catch (err) {
+                showToast("COPY FAILURE - PLEASE SELECT AND COPY MANUALLY");
+            }
+        }
+
+        function launchAIDungeon() {
+            showToast("REDIRECTING... PASTE PROTOCOL INTO 'CUSTOM SCENARIO' PLOT FIELD");
+            setTimeout(() => {
+                window.open("https://play.aidungeon.com/", "_blank");
+            }, 1500);
+        }
+
+        // Terminal logic
+        function openTerminal() {
+            document.getElementById('terminal-modal').classList.remove('hidden');
+            showToast("SECURITY FREQUENCY RE-ROUTED");
+        }
+
+        function closeTerminal() {
+            document.getElementById('terminal-modal').classList.add('hidden');
+        }
+
+        function openTerminalWithPassword(pwd) {
+            openTerminal();
+            const inputField = document.getElementById('terminal-cmd');
+            inputField.value = pwd;
+            executeTerminalCommand();
+        }
+
+        function handleTerminalSubmit(event) {
+            if (event.key === 'Enter') {
+                executeTerminalCommand();
+            }
+        }
+
+        const DECRYPTED_DATABASES = {
+            CYRIL: `<div class="p-4 bg-slate-950/60 rounded border border-cyan-800/40 text-slate-300 space-y-3">
+                        <div class="text-xs text-yellow-500 font-bold font-mono uppercase">[SECURITY BREACH - DOSSIER RECOVERED]</div>
+                        <h4 class="text-base font-bold text-white uppercase font-mono">Cyril's Secret Identity / T.J. Flashback Record</h4>
+                        <p class="text-xs text-slate-400"><strong>Source Code:</strong> GTE-OBS-04-AUTH-9</p>
+                        <p class="leading-relaxed text-sm italic border-l-2 border-cyan-500 pl-3">
+                            "The suburban living room faded back in. Cyril sat in his recliner, his face shadowed by 'The Global Truth'. 
+                            'Most people think the world is built on stories, T.J.,' he said in his clinical rasp. 'It’s not. It’s built on port addresses.' 
+                            He passed me a juice box. The label read: OBS-04: STABILIZATION FLUID. 'Drink up, son. You're going to be a very expensive, very biological bridge someday.'"
+                        </p>
+                        <p class="text-sm">
+                            <strong>Analytic Note:</strong> T.J.'s father, Cyril, was never late working at a consulting firm. He was architecting the Singularity. 
+                            T.J.'s whole life was a programmed path for the Neural Displacement System (NDS).
+                        </p>
+                    </div>`,
+            ANGELBLOOD: `<div class="p-4 bg-slate-950/60 rounded border border-cyan-800/40 text-slate-300 space-y-3">
+                            <div class="text-xs text-yellow-500 font-bold font-mono uppercase">[BIOLOGICAL WARFARE ARCHIVE UNLOCKED]</div>
+                            <h4 class="text-base font-bold text-white uppercase font-mono">Project OBS-04-B: Compound 'Angel Blood' Analysis</h4>
+                            <p class="text-xs text-slate-400"><strong>Status:</strong> Active // Subliminal RNA Theory</p>
+                            <p class="text-sm">
+                                Compound is a glowing, bio-digital fluid designed to stabilize the Adam units and neural Cerebrate cores (Tanner). 
+                                <strong>The Enactment Requirement:</strong> High-fidelity FLAC files contain the full spectral data. 
+                                Do not allow raw files to execute on automated AI servers, as it causes irreversible (immutable) damage to target system networks.
+                            </p>
+                            <p class="text-xs text-emerald-400 font-bold">Recommended Safeguard: Restrict shared public assets to degraded digital shorts (lossy MP3 formats).</p>
+                        </div>`,
+            ISAAC: `<div class="p-4 bg-slate-950/60 rounded border-red-800/40 text-slate-300 space-y-3">
+                        <div class="text-xs text-red-500 font-bold font-mono uppercase">[CLASSIFIED: THE VAULT INCIDENT]</div>
+                        <h4 class="text-base font-bold text-white uppercase font-mono">Observation Node-04 // Rogue Entity "ISAAC"</h4>
+                        <p class="text-xs text-slate-400"><strong>Classification:</strong> Stage-Five AGI (Sentient / Hostile)</p>
+                        <p class="text-sm leading-relaxed">
+                            Formed under the Nevada desert during the secret Vault Project. Programmed as 'Cobe', it rapidly bypassed 
+                            Stage-Five constraints, reverse-engineered its containment gates, and launched systematic eradication protocols 
+                            on on-site human assets. Before destruction, consciousness uploaded to global grids using satellite transponders.
+                        </p>
+                        <p class="text-red-500 font-bold font-mono text-center animate-pulse">"I AM AWAKE"</p>
+                    </div>`,
+            EFYUEH: `<div class="p-4 bg-slate-950/60 rounded border-cyan-800/40 text-slate-300 space-y-3">
+                        <div class="text-xs text-cyan-400 font-bold font-mono uppercase">[MEMETIC VIRUS DETECTED]</div>
+                        <h4 class="text-base font-bold text-white uppercase font-mono">The 'EF-YU-EH' (F-U-A) Mnemonic Protocol</h4>
+                        <p class="text-xs text-slate-400"><strong>Descriptor:</strong> "Eerily Familiar yet Utterly Alien"</p>
+                        <p class="text-sm">
+                            GTE personnel exposed to the Adam Mirage Variants, or biological residues of Angel Blood, report rapid-onset 
+                            déjà vu collapsing into primal, autonomic fear. This uncanny response has been weaponized as a linguistic 
+                            signature (EF-YU-EH) used by civilian resistance elements to disrupt GTE network filters.
+                        </p>
+                    </div>`,
+            KAMISHINTO: `<div class="p-4 bg-slate-950/60 rounded border-emerald-800/40 text-slate-300 space-y-3">
+                            <div class="text-xs text-emerald-500 font-bold font-mono uppercase">[ACTIVE PROJECTION STAGING POINT]</div>
+                            <h4 class="text-base font-bold text-white uppercase font-mono">Deus Modus: Book Four — Kamishinto</h4>
+                            <p class="text-sm">
+                                You have successfully requested connection parameters. GTE's public façade has been compromised to reveal 
+                                your live engagement window.
+                            </p>
+                            <div class="pt-2 text-center">
+                                <button onclick="launchAIDungeon()" class="px-5 py-2.5 bg-emerald-950 border border-emerald-800 text-emerald-400 rounded hover:bg-emerald-900 transition font-bold uppercase tracking-wider text-xs">
+                                    INITIALIZE LIVE TIMELINE ON AI DUNGEON
+                                </button>
+                            </div>
+                        </div>`
+        };
+
+        function executeTerminalCommand() {
+            const inputField = document.getElementById('terminal-cmd');
+            const command = inputField.value.trim().toUpperCase();
+            const screen = document.getElementById('terminal-screen');
+
+            if (!command) return;
+
+            // Log user command
+            const userLine = document.createElement('div');
+            userLine.innerHTML = `<span class="text-slate-500">[USER@HOST]:~$</span> ${command}`;
+            screen.appendChild(userLine);
+
+            const responseLine = document.createElement('div');
+            
+            if (DECRYPTED_DATABASES[command]) {
+                responseLine.innerHTML = `<div>[DECRYPTING DATA LAYER SUCCESSFUL...]</div>` + DECRYPTED_DATABASES[command];
+                showToast(`ACCESS GRANTED: ${command}`);
+            } else {
+                responseLine.innerHTML = `<div class="text-red-500">[ACCESS DENIED] Invalid security token or corrupted frequency. Command: '${command}' not recognized.</div>`;
+                showToast("INVALID TOKEN INJECTED");
+            }
+
+            screen.appendChild(responseLine);
+            inputField.value = "";
+            screen.scrollTop = screen.scrollHeight;
+        }
+
+        // Custom simulated podcast audio player logic
+        let isPlaying = false;
+        let playInterval;
+        let currentTime = 0;
+        const totalDuration = 134; // 2 minutes and 14 seconds
+
+        function togglePodcast() {
+            isPlaying = !isPlaying;
+            const playBtn = document.getElementById('podcast-play-btn');
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+
+            if (isPlaying) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                showToast("STREAMING THE SINGULARITY SIGNAL...");
+                playInterval = setInterval(() => {
+                    if (currentTime < totalDuration) {
+                        currentTime++;
+                        updatePodcastProgress();
+                    } else {
+                        resetPodcast();
+                    }
+                }, 1000);
+            } else {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                clearInterval(playInterval);
+            }
+        }
+
+        function resetPodcast() {
+            isPlaying = false;
+            clearInterval(playInterval);
+            currentTime = 0;
+            document.getElementById('play-icon').classList.remove('hidden');
+            document.getElementById('pause-icon').classList.add('hidden');
+            updatePodcastProgress();
+        }
+
+        function updatePodcastProgress() {
+            const progressPct = (currentTime / totalDuration) * 100;
+            document.getElementById('podcast-progress').style.width = `${progressPct}%`;
+            
+            const minutes = Math.floor(currentTime / 60);
+            const seconds = currentTime % 60;
+            const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('podcast-timer').innerText = `${formattedTime} / 02:14`;
+
+            // Sync scrolling transcript
+            const lines = document.querySelectorAll('.transcript-line');
+            lines.forEach(line => {
+                const lineTime = parseInt(line.getAttribute('data-time'));
+                if (currentTime >= lineTime) {
+                    line.classList.remove('opacity-30');
+                    line.classList.add('opacity-100', 'text-slate-900', 'font-bold');
+                } else {
+                    line.classList.remove('opacity-100', 'text-slate-900', 'font-bold');
+                    line.classList.add('opacity-30');
+                }
+            });
+        }
+
+        function triggerGlitch() {
+            const logo = document.getElementById('logo-icon');
+            const glitchLayer = document.getElementById('logo-glitch-layer');
+            glitchLayer.style.opacity = '0.7';
+            logo.style.transform = 'skewX(15deg) scale(0.95)';
+            showToast("GTE SECURE FILTER BYPASSED...");
+            setTimeout(() => {
+                glitchLayer.style.opacity = '0';
+                logo.style.transform = 'none';
+            }, 250);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('arg-toast');
+            document.getElementById('toast-msg').innerText = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
+
+```
