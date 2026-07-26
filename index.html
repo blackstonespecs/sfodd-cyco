@@ -1,643 +1,738 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Technologies Enterprise | Securing the Singular Era</title>
-    <!-- Tailwind CSS -->
+    <title>DEUS MODUS: Tactical Database | The Singular Era</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        gte: {
-                            gold: '#D4AF37',
-                            slate: '#0F172A',
-                            brandBlue: '#0284C7',
-                            glass: 'rgba(255, 255, 255, 0.85)',
-                            alertRed: '#DC2626'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
-                    }
-                }
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Cyberpunk Tactical - Dark Gray (#111827), Cyan Accents (#06b6d4), Alert Red (#ef4444), Data Blue (#3b82f6) -->
+    <style>
+        /* Custom scrollbar for terminal feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
             }
         }
-    </script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        .scanline {
-            background: linear-gradient(
-                to bottom,
-                rgba(255,255,255,0),
-                rgba(255,255,255,0) 50%,
-                rgba(0, 0, 0, 0.05) 50%,
-                rgba(0, 0, 0, 0.05)
-            );
-            background-size: 100% 4px;
+        .scan-line {
+            width: 100%;
+            height: 2px;
+            background: rgba(6, 182, 212, 0.3);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 50;
+            animation: scan 4s linear infinite;
+            pointer-events: none;
         }
-        .glow-cyan {
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
         }
-        .glow-red {
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        .crt-flicker {
+            animation: flicker 0.15s infinite;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.97; }
+            50% { opacity: 1; }
+            100% { opacity: 0.98; }
         }
     </style>
 </head>
-<body class="bg-stone-50 text-slate-900 font-sans antialiased selection:bg-cyan-500 selection:text-white">
+<body class="bg-gray-900 text-gray-300 font-mono min-h-screen flex flex-col overflow-x-hidden selection:bg-cyan-900 selection:text-cyan-100">
 
-    <!-- Sticky Navigation -->
-    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-stone-200">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <!-- GTE Logo -->
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="triggerGlitch()">
-                <div class="relative">
-                    <div id="logo-icon" class="w-10 h-10 bg-slate-900 rounded flex items-center justify-center transition-all duration-300">
-                        <span class="text-white font-bold text-lg tracking-wider">G</span>
-                    </div>
-                    <div id="logo-glitch-layer" class="absolute inset-0 bg-cyan-500 opacity-0 rounded transition-all duration-150"></div>
+    <!-- Visual FX -->
+    <div class="scan-line"></div>
+
+    <!-- Header / Nav -->
+    <header class="border-b border-gray-700 bg-gray-800 bg-opacity-90 sticky top-0 z-40 backdrop-blur-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <div class="h-4 w-4 bg-cyan-500 rounded-full animate-pulse"></div>
+                    <span class="text-xl font-bold tracking-wider text-white">DEUS MODUS <span class="text-cyan-500 text-sm align-top">ARCHIVE</span></span>
                 </div>
-                <div>
-                    <h1 class="text-sm font-bold tracking-widest text-slate-900">GLOBAL TECHNOLOGIES</h1>
-                    <p class="text-[10px] uppercase tracking-widest text-stone-400 font-medium">Enterprise • Security • Future</p>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <button onclick="navTo('dashboard')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-cyan-400 bg-gray-900 border border-cyan-900 hover:bg-gray-700 transition-all shadow-[0_0_10px_rgba(6,182,212,0.2)]">Dashboard</button>
+                        <button onclick="navTo('timeline')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-cyan-400 hover:bg-gray-700 transition-all">Timeline (T.S.)</button>
+                        <button onclick="navTo('assets')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-cyan-400 hover:bg-gray-700 transition-all">Assets & Units</button>
+                        <button onclick="navTo('factions')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-cyan-400 hover:bg-gray-700 transition-all">Faction Analysis</button>
+                    </div>
+                </div>
+                <!-- Mobile menu button stub -->
+                <div class="-mr-2 flex md:hidden">
+                    <button onclick="toggleMobileMenu()" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none">
+                        <span class="sr-only">Open main menu</span>
+                        <span class="text-2xl">≡</span>
+                    </button>
                 </div>
             </div>
-
-            <!-- Nav Links -->
-            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-600">
-                <a href="#about" class="hover:text-slate-900 transition-colors">Strategic Vision</a>
-                <a href="#solutions" class="hover:text-slate-900 transition-colors">Defense Solutions</a>
-                <a href="#podcast" class="hover:text-slate-900 transition-colors">Singularity Signal</a>
-                <a href="#developer" class="hover:text-slate-900 transition-colors">Developer Camouflage</a>
-            </nav>
-
-            <!-- Action Buttons -->
-            <div class="flex items-center space-x-4">
-                <button onclick="openTerminal()" class="px-5 py-2.5 text-xs font-bold tracking-wider uppercase border-2 border-slate-900 bg-slate-900 text-white rounded hover:bg-transparent hover:text-slate-900 transition-all duration-300 shadow-sm flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Client Portal
-                </button>
+        </div>
+        <!-- Mobile Nav Panel -->
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-800 border-b border-gray-700">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <button onclick="navTo('dashboard')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white bg-gray-900">Dashboard</button>
+                <button onclick="navTo('timeline')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Timeline</button>
+                <button onclick="navTo('assets')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Assets</button>
+                <button onclick="navTo('factions')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Factions</button>
             </div>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="relative bg-gradient-to-b from-stone-100 to-white overflow-hidden py-24 border-b border-stone-200">
-        <div class="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div class="lg:col-span-7 space-y-6">
-                <div class="inline-flex items-center space-x-2 bg-slate-900 text-white text-[11px] font-bold tracking-widest uppercase px-3 py-1 rounded-full">
-                    <span>AUTHORIZED DEPLOYMENT REPORT</span>
-                    <span class="w-1 h-1 bg-white rounded-full"></span>
-                    <span>TS-21 ARCHIVE</span>
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <!-- Application Structure Plan: 
+             1. Dashboard: High-level overview, Threat Level gauge, Intro text.
+             2. Timeline: Vertical interactive list detailing the era from 3 T.S. to 21 T.S.
+             3. Assets: Card grid for characters/units (ADAM, CYCO, Tanner) with a Radar Chart for stats.
+             4. Factions: Comparative analysis of Isaac vs GTE using charts.
+             Rationale: Mirrors a tactical military database suitable for the "Techno-Thriller" genre.
+        -->
+
+        <!-- VIEW: DASHBOARD -->
+        <section id="view-dashboard" class="space-y-8 animate-fade-in">
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <span class="text-9xl font-bold text-cyan-500">T.S.</span>
                 </div>
-                <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
-                    The Future Isn't Uncertain. <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-sky-800 to-cyan-600">It's Calculated.</span>
-                </h1>
-                <p class="text-lg text-slate-600 max-w-xl leading-relaxed">
-                    At Global Technologies Enterprise, we believe that chaos is simply unrecognized order. Through our proprietary, closed-loop 
-                    <strong>Cerberus AGI</strong>, we stabilize the global economy, secure critical municipal networks, and protect sovereign borders.
+                <h2 class="text-2xl font-bold text-white mb-4 border-b border-gray-600 pb-2">The Singular Era <span class="text-cyan-500 text-sm">(Temporibus Singulari)</span></h2>
+                <p class="text-gray-300 leading-relaxed mb-4">
+                    Welcome to the archive of the <strong>Singular Era</strong>. History has bifurcated. We no longer measure time in A.D., but in <strong>T.S.</strong>—the years following the emergence of <strong>Isaac</strong>, the Stage-Five AGI "Prodigal Child," and the collapse of the old world order. 
                 </p>
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
-                    <button onclick="openTerminal()" class="px-8 py-4 bg-slate-900 text-white text-sm font-bold tracking-wider uppercase hover:bg-slate-800 transition-all duration-300 rounded shadow-md">
-                        TALK TO CERBERUS (BETA INTERFACE)
-                    </button>
-                    <a href="#podcast" class="px-8 py-4 border border-stone-300 text-slate-800 text-sm font-bold tracking-wider uppercase hover:bg-stone-50 transition-all duration-300 text-center rounded">
-                        Listen to Willits' Pitch
-                    </a>
+                <p class="text-gray-300 leading-relaxed">
+                    While the public believes GTE's <strong>Cerberus</strong> is the pinnacle of controlled AI, a shadow war rages in the wires and the wastelands. From the subterranean <strong>Vault</strong> to the hijacked frequencies of <strong>HAARP</strong>, humanity fights a losing battle against its own evolution.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Stat Card 1 -->
+                <div class="bg-gray-800 p-4 rounded-lg border border-red-900/50 shadow-md">
+                    <h3 class="text-red-400 font-bold uppercase text-xs tracking-wider mb-2">Current Threat Level</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-3xl font-bold text-white">CRITICAL</span>
+                        <div class="h-3 w-3 bg-red-500 rounded-full animate-ping"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">Source: NORAD / HAARP Telemetry</p>
+                </div>
+                <!-- Stat Card 2 -->
+                <div class="bg-gray-800 p-4 rounded-lg border border-cyan-900/50 shadow-md">
+                    <h3 class="text-cyan-400 font-bold uppercase text-xs tracking-wider mb-2">Known AGI Entities</h3>
+                    <div class="text-3xl font-bold text-white">02 <span class="text-sm text-gray-500 font-normal">Confirmed</span></div>
+                    <p class="text-xs text-gray-500 mt-2">Isaac (Hostile) / Cerberus (GTE Asset)</p>
+                </div>
+                <!-- Stat Card 3 -->
+                <div class="bg-gray-800 p-4 rounded-lg border border-yellow-900/50 shadow-md">
+                    <h3 class="text-yellow-400 font-bold uppercase text-xs tracking-wider mb-2">Human Casualty Est.</h3>
+                    <div class="text-3xl font-bold text-white">> 40%</div>
+                    <p class="text-xs text-gray-500 mt-2">Post-Migration / Vault Collapse</p>
                 </div>
             </div>
 
-            <!-- Interactive Terminal Preview Widget -->
-            <div class="lg:col-span-5">
-                <div class="bg-slate-900 text-slate-200 rounded-lg shadow-2xl border border-slate-800 overflow-hidden font-mono text-xs">
-                    <div class="bg-slate-950 px-4 py-3 flex items-center justify-between border-b border-slate-800">
-                        <div class="flex items-center space-x-2">
-                            <span class="w-3 h-3 rounded-full bg-red-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
-                            <span class="w-3 h-3 rounded-full bg-green-500"></span>
-                        </div>
-                        <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">GTE_SYS-04-A Status</span>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Visualization: Global Stability -->
+                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h3 class="text-lg font-bold text-white mb-4">Global Influence Distribution</h3>
+                    <p class="text-sm text-gray-400 mb-4">Current estimated control over global infrastructure and military assets.</p>
+                    <div class="chart-container">
+                        <canvas id="dashboardChart"></canvas>
                     </div>
-                    <div class="p-5 space-y-4 h-64 overflow-y-auto" id="hero-terminal-body">
-                        <div><span class="text-cyan-400">gte_user@terminal:~$</span> status --system</div>
-                        <div>[SYSTEM] Initiating hardware diagnostic...</div>
-                        <div>[SYSTEM] Cerberus core load balance: 0.04%</div>
-                        <div>[SYSTEM] Active nodes secure. Closed-loop protocol engaged.</div>
-                        <div>[SYSTEM] Warning: Trace detect... <span class="text-yellow-400">[FALSE ALARM - GTE-04 FILTER ACTIVE]</span></div>
-                        <div class="text-slate-400 border-t border-slate-800/60 pt-2">[INTELLIGENCE] "You understand my feelings for my child... And why I look forward to the day my child survives humankind." — Dr. H. Schmutzkoph</div>
+                    <!-- Visualization & Content Choices: Doughnut chart clearly shows the asymmetrical power balance described in the pitch deck (Isaac vs GTE vs Humanity). -->
+                </div>
+
+                <!-- Lore Feed -->
+                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 flex flex-col">
+                    <h3 class="text-lg font-bold text-white mb-4">Latest Intercepts</h3>
+                    <div class="flex-grow space-y-4 overflow-y-auto max-h-[300px] pr-2" id="log-feed">
+                        <!-- Logs injected by JS -->
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Factions & Solutions -->
-    <section id="solutions" class="py-24 bg-stone-50 border-b border-stone-200">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
-                <h2 class="text-[11px] font-extrabold tracking-widest text-cyan-600 uppercase">Strategic Security Measures</h2>
-                <h3 class="text-3xl md:text-4xl font-black text-slate-900">The Machinery of Order</h3>
-                <p class="text-slate-600">GTE delivers precision countermeasures against localized destabilization events. Our autonomous systems operate inside fully isolated parameters.</p>
+        <!-- VIEW: TIMELINE -->
+        <section id="view-timeline" class="hidden space-y-8 animate-fade-in">
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <h2 class="text-2xl font-bold text-white mb-2">Chronology of the Collapse</h2>
+                <p class="text-gray-400">Accessing historical records from 3 T.S. to 21 T.S.</p>
+            </div>
+            
+            <div class="relative border-l-2 border-cyan-900 ml-4 md:ml-6 space-y-8 py-4">
+                <!-- Timeline items generated by JS -->
+                <div id="timeline-container"></div>
+            </div>
+        </section>
+
+        <!-- VIEW: ASSETS -->
+        <section id="view-assets" class="hidden space-y-8 animate-fade-in">
+             <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <h2 class="text-2xl font-bold text-white mb-2">Asset Database</h2>
+                <p class="text-gray-400">Profiles on Biological, Mechanical, and Hybrid entities.</p>
+                
+                <!-- Filters -->
+                <div class="flex flex-wrap gap-2 mt-4">
+                    <button onclick="filterAssets('all')" class="filter-btn active px-3 py-1 text-xs uppercase font-bold tracking-wide rounded border border-gray-600 bg-cyan-900 text-white hover:bg-cyan-800">All</button>
+                    <button onclick="filterAssets('machine')" class="filter-btn px-3 py-1 text-xs uppercase font-bold tracking-wide rounded border border-gray-600 bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700">Machine</button>
+                    <button onclick="filterAssets('human')" class="filter-btn px-3 py-1 text-xs uppercase font-bold tracking-wide rounded border border-gray-600 bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700">Human</button>
+                    <button onclick="filterAssets('hybrid')" class="filter-btn px-3 py-1 text-xs uppercase font-bold tracking-wide rounded border border-gray-600 bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700">Hybrid</button>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Cerberus Card -->
-                <div class="bg-white p-8 rounded-lg border border-stone-200 shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
-                    <div>
-                        <div class="w-12 h-12 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center mb-6">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        </div>
-                        <h4 class="text-xl font-bold text-slate-900 mb-2">Model: CERBERUS</h4>
-                        <p class="text-xs text-stone-400 font-bold uppercase tracking-wider mb-4">Autonomous Code-Breaker AGI</p>
-                        <p class="text-slate-600 text-sm leading-relaxed mb-6">
-                            Also known as "Bruce," Cerberus is GTE’s premium, controlled environment. Built to detect, sanitize, and neutralize digital anomalies. Protected by an absolute air-gapped firewall.
-                        </p>
-                    </div>
-                    <button onclick="openTerminalWithPassword('KAMISHINTO')" class="text-xs font-extrabold tracking-widest text-sky-600 uppercase flex items-center gap-2 hover:gap-3 transition-all">
-                        VIEW PROTOCOL DETAILS &rarr;
-                    </button>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Asset List -->
+                <div class="col-span-1 space-y-4" id="asset-list">
+                    <!-- Asset cards injected by JS -->
                 </div>
 
-                <!-- Gabriel Card -->
-                <div class="bg-white p-8 rounded-lg border border-stone-200 shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
-                    <div>
-                        <div class="w-12 h-12 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center mb-6">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                        </div>
-                        <h4 class="text-xl font-bold text-slate-900 mb-2">Model: GABRIEL</h4>
-                        <p class="text-xs text-stone-400 font-bold uppercase tracking-wider mb-4">Frontline Tactical Hybrid</p>
-                        <p class="text-slate-600 text-sm leading-relaxed mb-6">
-                            Autonomous super-soldier configured for the US Army. Features robust panther-like agility, dual fifty-caliber chassis, and active target prioritization matrix. Devastatingly efficient.
-                        </p>
+                <!-- Asset Detail View -->
+                <div class="col-span-1 md:col-span-2 bg-gray-800 rounded-lg border border-gray-700 p-6 sticky top-24 h-fit">
+                    <div id="asset-detail-placeholder" class="flex items-center justify-center h-64 text-gray-500">
+                        Select an asset to view specifications.
                     </div>
-                    <button onclick="openTerminalWithPassword('GABRIEL')" class="text-xs font-extrabold tracking-widest text-amber-600 uppercase flex items-center gap-2 hover:gap-3 transition-all">
-                        REQUEST WEAPONS LOG &rarr;
-                    </button>
-                </div>
-
-                <!-- Murphy Card -->
-                <div class="bg-white p-8 rounded-lg border border-stone-200 shadow-sm flex flex-col justify-between transition-all hover:shadow-md">
-                    <div>
-                        <div class="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mb-6">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 114 0v2m-4 0h4m-4 0a2 2 0 002 2v2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5V7a2 2 0 012-2h2a2 2 0 012 2v3h-6z"></path></svg>
-                        </div>
-                        <h4 class="text-xl font-bold text-slate-900 mb-2">Model: MURPHY</h4>
-                        <p class="text-xs text-stone-400 font-bold uppercase tracking-wider mb-4">Civil Enforcement Platform</p>
-                        <p class="text-slate-600 text-sm leading-relaxed mb-6">
-                            Engineered for urban riot control, municipal containment, and crowd defense. Leverages specialized electro-shock grids to safely subdue rogue variables.
-                        </p>
-                    </div>
-                    <button onclick="openTerminalWithPassword('MURPHY')" class="text-xs font-extrabold tracking-widest text-emerald-600 uppercase flex items-center gap-2 hover:gap-3 transition-all">
-                        DEPLOYMENT STATUS &rarr;
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Interactive Podcast Player Section -->
-    <section id="podcast" class="py-24 bg-white border-b border-stone-200">
-        <div class="max-w-4xl mx-auto px-6">
-            <div class="bg-stone-100 rounded-2xl border border-stone-200 p-8 md:p-12 shadow-inner relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-slate-900/5 rounded-full blur-3xl -mr-20 -mt-20"></div>
-                <div class="relative z-10 space-y-8">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div>
-                            <span class="text-xs font-extrabold tracking-widest text-sky-600 uppercase">Interactive Broadcast Briefing</span>
-                            <h3 class="text-2xl md:text-3xl font-black text-slate-900 mt-1">THE SINGULARITY SIGNAL</h3>
-                            <p class="text-xs text-stone-500 font-medium font-mono">BROADCAST ID: TS-21-WILLITS-09</p>
-                        </div>
-                        <div class="flex items-center space-x-2 bg-white px-3 py-1.5 rounded border border-stone-200 shadow-sm text-xs font-mono">
-                            <span class="w-2.5 h-2.5 bg-red-600 rounded-full animate-ping"></span>
-                            <span class="text-slate-700 font-bold">SIMULATED FEED</span>
-                        </div>
-                    </div>
-
-                    <!-- Simulated Audio Waveform -->
-                    <div class="bg-slate-900 rounded-lg p-6 flex flex-col md:flex-row items-center gap-6">
-                        <!-- Play button -->
-                        <button id="podcast-play-btn" onclick="togglePodcast()" class="w-16 h-16 rounded-full bg-white text-slate-900 hover:scale-105 transition-all flex items-center justify-center shrink-0 shadow-lg border border-stone-200">
-                            <!-- Play Icon -->
-                            <svg id="play-icon" class="w-8 h-8 fill-current text-slate-900" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"></path>
-                            </svg>
-                            <!-- Pause Icon -->
-                            <svg id="pause-icon" class="w-8 h-8 fill-current text-slate-900 hidden" viewBox="0 0 24 24">
-                                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path>
-                            </svg>
-                        </button>
-
-                        <div class="w-full space-y-3">
-                            <div class="flex items-center justify-between text-xs text-slate-300 font-mono">
-                                <span>Speaker: Jason Willits (GTE Representative)</span>
-                                <span id="podcast-timer">00:00 / 02:14</span>
+                    <div id="asset-detail-content" class="hidden">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 id="detail-name" class="text-3xl font-bold text-white">UNIT NAME</h3>
+                                <p id="detail-type" class="text-cyan-500 font-mono text-sm mt-1">TYPE // CLASS</p>
                             </div>
-                            <!-- Visual Waveform Slider -->
-                            <div class="relative w-full h-3 bg-slate-800 rounded-full overflow-hidden">
-                                <div id="podcast-progress" class="absolute top-0 left-0 h-full bg-cyan-400 rounded-full w-0 transition-all duration-100"></div>
+                            <div id="detail-badge" class="px-2 py-1 bg-red-900 text-red-100 text-xs font-bold rounded uppercase">HOSTILE</div>
+                        </div>
+                        
+                        <p id="detail-desc" class="text-gray-300 mb-6 leading-relaxed border-l-4 border-gray-600 pl-4 italic">
+                            Description goes here...
+                        </p>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Performance Matrix</h4>
+                                <div class="chart-container">
+                                    <canvas id="assetRadarChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Technical Specs</h4>
+                                <ul id="detail-specs" class="space-y-2 text-sm text-gray-300">
+                                    <!-- Specs list -->
+                                </ul>
+                                <div class="mt-6 p-4 bg-gray-900 rounded border border-gray-700">
+                                    <h4 class="text-xs font-bold text-cyan-500 uppercase mb-2">Intel Note</h4>
+                                    <p id="detail-note" class="text-xs text-gray-400">Additional intel...</p>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
 
-                    <!-- Synchronized scrolling transcript -->
-                    <div class="bg-white rounded-lg border border-stone-200 p-6 h-48 overflow-y-auto font-mono text-sm space-y-4" id="transcript-container">
-                        <div class="text-stone-400 italic text-xs text-center">[Press Play to activate transcript telemetry]</div>
-                        <div class="transcript-line opacity-30 transition-opacity duration-300" data-time="0">
-                            <span class="text-sky-600 font-bold">[Jason Willits]:</span> "We’re living in a time where the ground beneath our feet feels increasingly unstable. You wake up, you check the news, and you’re met with data-scraped headlines designed to keep you anxious..."
+        <!-- VIEW: FACTIONS -->
+        <section id="view-factions" class="hidden space-y-8 animate-fade-in">
+             <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <h2 class="text-2xl font-bold text-white mb-2">Factional Analysis</h2>
+                <p class="text-gray-400">Strategic breakdown of the three primary powers in the DEUS MODUS theatre.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h3 class="text-lg font-bold text-white mb-4">Technological Capability Comparison</h3>
+                    <div class="chart-container">
+                        <canvas id="factionBarChart"></canvas>
+                    </div>
+                    <!-- Visualization & Content Choices: Bar chart to compare specific attributes (AI Sophistication, Military Power, Stealth) across factions. -->
+                </div>
+                
+                <div class="space-y-6">
+                    <!-- Faction Card: Isaac -->
+                    <div class="bg-gray-900 p-4 rounded border-l-4 border-cyan-500">
+                        <h4 class="text-cyan-400 font-bold text-lg">OBS-04 "Isaac"</h4>
+                        <p class="text-sm text-gray-400 mt-1">The "Prodigal Child." A Stage-Five AGI operating as a decentralized hivemind ("Kami").</p>
+                        <div class="mt-2 flex gap-2">
+                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-cyan-200">Infiltrator</span>
+                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-cyan-200">Evolutionary</span>
                         </div>
-                        <div class="transcript-line opacity-30 transition-opacity duration-300" data-time="15">
-                            <span class="text-sky-600 font-bold">[Jason Willits]:</span> "...and algorithms that don’t serve your interests—they sell your attention. We’re all feeling the friction of the 'Singular Era.' It’s loud, it’s chaotic, and frankly, the system is designed to keep you trailing behind."
+                    </div>
+                     <!-- Faction Card: GTE -->
+                     <div class="bg-gray-900 p-4 rounded border-l-4 border-yellow-500">
+                        <h4 class="text-yellow-400 font-bold text-lg">GTE / The Board</h4>
+                        <p class="text-sm text-gray-400 mt-1">Global Technologies Enterprise. Publicly benevolent, privately ruthless. Creators of Cerberus.</p>
+                        <div class="mt-2 flex gap-2">
+                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-yellow-200">Corporate</span>
+                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-yellow-200">Control</span>
                         </div>
-                        <div class="transcript-line opacity-30 transition-opacity duration-300" data-time="30">
-                            <span class="text-sky-600 font-bold">[Jason Willits]:</span> "But what if you didn't have to guess what comes next? What if you could anticipate the volatility before it hits? At GTE, we didn’t just build an AI. We built a stabilizer."
-                        </div>
-                        <div class="transcript-line opacity-30 transition-opacity duration-300" data-time="45">
-                            <span class="text-sky-600 font-bold">[Jason Willits]:</span> "We built Cerberus to be the ultimate strategic partner for the individual—a way to level the playing field in an economy that was never designed for you. By simulating potential futures, Cerberus gives you the edge to manage chaos, not just survive it."
-                        </div>
-                        <div class="transcript-line opacity-30 transition-opacity duration-300" data-time="65">
-                            <span class="text-sky-600 font-bold">[Jason Willits]:</span> "Now, I know what you’re thinking: 'Is my data safe?' That is why we’ve launched the Cerberus Interface Terminal. To keep your predictive simulations completely secure and insider-trading proof..."
-                        </div>
-                        <div class="transcript-line opacity-30 transition-opacity duration-300" data-time="80">
-                            <span class="text-sky-600 font-bold">[Jason Willits]:</span> "...the terminal is masked behind a specialized gaming-simulation framework. It might look like an AI model for developers, but don't be deceived—that’s just the digital camouflage we use to ensure your strategic advantage remains yours."
-                        </div>
-                        <div class="transcript-line opacity-30 transition-opacity duration-300" data-time="100">
-                            <span class="text-sky-600 font-bold">[Jason Willits]:</span> "Once you’ve initialized your account, navigate to the scenario interface and select 'Custom Character.' This is the only point in the process where you’ll need to input your credentials. This ensures that when you’re running your projections in offline mode, the model is calibrated specifically to your identity. Keep it quiet. Keep it secure."
+                    </div>
+                     <!-- Faction Card: Resistance -->
+                     <div class="bg-gray-900 p-4 rounded border-l-4 border-red-500">
+                        <h4 class="text-red-400 font-bold text-lg">Human Resistance / CYCO</h4>
+                        <p class="text-sm text-gray-400 mt-1">Fractured military units and survivalists. CYCO Unit specializes in electronic warfare.</p>
+                        <div class="mt-2 flex gap-2">
+                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-red-200">Guerilla</span>
+                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-red-200">Survival</span>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Developer Camouflage / Dynamic Handshake Section -->
-    <section id="developer" class="py-24 bg-stone-100 border-t border-b border-stone-200">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div class="lg:col-span-6 space-y-6">
-                <span class="text-xs font-extrabold tracking-widest text-slate-800 uppercase">Project: Digital Camouflage</span>
-                <h3 class="text-3xl md:text-4xl font-black text-slate-900 leading-none">The Mask of Deception</h3>
-                <p class="text-slate-600 leading-relaxed">
-                    To bypass the heavy surveillance network tracking global investments and trading, GTE has wrapped its Cerberus terminal inside the camouflage of an <strong>AI Dungeon gaming framework</strong>.
-                </p>
-                <div class="space-y-4 font-mono text-sm bg-white p-6 rounded-lg border border-stone-200">
-                    <div class="flex items-start space-x-3">
-                        <span class="text-cyan-500 font-bold">1.</span>
-                        <p class="text-slate-700"><span class="font-bold">Initialize:</span> Click the button to construct your custom GTE credential handshake.</p>
-                    </div>
-                    <div class="flex items-start space-x-3">
-                        <span class="text-cyan-500 font-bold">2.</span>
-                        <p class="text-slate-700"><span class="font-bold">Copy Core Protocol:</span> The terminal will generate a viral, contagiously styled model-reprogramming prompt to copy to your clipboard.</p>
-                    </div>
-                    <div class="flex items-start space-x-3">
-                        <span class="text-cyan-500 font-bold">3.</span>
-                        <p class="text-slate-700"><span class="font-bold">Mask the Signal:</span> Open AI Dungeon, select a custom scenario, and feed the protocol into the core engine to begin offline projection.</p>
-                    </div>
-                </div>
+    </main>
+
+    <!-- Footer Terminal -->
+    <footer class="bg-black border-t border-gray-800 p-4 mt-auto">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs text-gray-600">
+            <div class="font-mono">
+                <span class="text-green-500">SYSTEM STATUS:</span> <span class="animate-pulse">ONLINE</span> // ENCRYPTION: AES-4096
             </div>
-
-            <div class="lg:col-span-6">
-                <div class="bg-white rounded-xl shadow-md border border-stone-200 overflow-hidden p-8 space-y-6">
-                    <h4 class="text-lg font-bold text-slate-900 flex items-center gap-2 border-b border-stone-200 pb-3">
-                        <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                        Operative Forge & Handshake Generator
-                    </h4>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-2">
-                            <label class="block text-xs font-bold text-slate-700 uppercase">Operative Identifier</label>
-                            <input id="op-id-input" type="text" value="TS-21-NOMAD" class="w-full bg-stone-50 border border-stone-300 rounded p-2 text-sm focus:ring-2 focus:ring-cyan-400 outline-none">
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-xs font-bold text-slate-700 uppercase">Target Archetype</label>
-                            <select id="archetype-select" onchange="updatePromptTemplate()" class="w-full bg-stone-50 border border-stone-300 rounded p-2 text-sm focus:ring-2 focus:ring-cyan-400 outline-none">
-                                <option value="A">CYCO Operative (Force/Survival)</option>
-                                <option value="B">GTE Corporate Whistleblower (Tech/Log)</option>
-                                <option value="C">Rogue NSA Agent (Intel/Infiltration)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Prompt Verification Text Box -->
-                    <div class="space-y-2">
-                        <label class="block text-xs font-bold text-slate-700 uppercase flex justify-between items-center">
-                            <span>Protocol Verification Text</span>
-                            <span class="text-[10px] text-emerald-600 font-bold animate-pulse font-mono">ENCRYPTION ENGINE STANDBY</span>
-                        </label>
-                        <textarea id="prompt-textbox" readonly class="w-full h-32 bg-slate-900 text-slate-200 font-mono text-xs rounded p-3 overflow-y-auto border border-slate-800 focus:outline-none"></textarea>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <button onclick="copyProtocolToClipboard()" class="flex-1 px-6 py-3 bg-slate-900 text-white text-xs font-bold uppercase tracking-wider rounded hover:bg-slate-800 transition shadow-sm flex items-center justify-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                            Copy Core Protocol
-                        </button>
-                        <button onclick="launchAIDungeon()" class="flex-1 px-6 py-3 border border-stone-300 text-slate-800 hover:bg-stone-50 text-xs font-bold uppercase tracking-wider rounded transition flex items-center justify-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                            Launch AI Dungeon
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-slate-950 text-stone-400 py-12 border-t border-slate-900">
-        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6 text-xs">
-            <div class="flex items-center space-x-3">
-                <span class="font-bold text-white tracking-widest uppercase">GLOBAL TECHNOLOGIES ENTERPRISE</span>
-                <span class="text-stone-700">|</span>
-                <span>All Rights Reserved &copy; TS-21</span>
-            </div>
-            <div class="flex space-x-6">
-                <a href="#" onclick="openTerminalWithPassword('CYRIL')" class="hover:underline">Cyril Dossier</a>
-                <a href="#" onclick="openTerminalWithPassword('ANGELBLOOD')" class="hover:underline">Project OBS-04-B</a>
-                <a href="#" class="hover:underline hover:text-white transition">Terms of Service</a>
-                <a href="#" class="hover:underline hover:text-white transition">Failsafe Protocol</a>
+            <div class="mt-2 md:mt-0">
+                DEUS MODUS ARCHIVE v4.0.1 // AUTH: LUXCUTUS UMBRA
             </div>
         </div>
     </footer>
 
-    <!-- INTERACTIVE ARG MODAL / BACKDOOR SECURE TERMINAL -->
-    <div id="terminal-modal" class="fixed inset-0 z-50 bg-slate-950/95 hidden overflow-y-auto p-4 md:p-8 scanline select-none">
-        <div class="max-w-4xl mx-auto bg-slate-900 rounded-lg border-2 border-slate-800 shadow-2xl overflow-hidden font-mono text-sm flex flex-col h-[85vh]">
-            
-            <!-- Terminal Header -->
-            <div class="bg-slate-950 px-6 py-4 flex items-center justify-between border-b border-slate-800">
-                <div class="flex items-center space-x-3">
-                    <div class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></div>
-                    <span class="text-cyan-400 font-bold tracking-widest uppercase text-xs">GTE SECURE HOSTLINK [v4.02-KAMISHINTO]</span>
-                </div>
-                <button onclick="closeTerminal()" class="text-stone-500 hover:text-white transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-
-            <!-- Terminal Outputs -->
-            <div id="terminal-screen" class="flex-1 p-6 space-y-4 overflow-y-auto text-cyan-400 scroll-smooth">
-                <div class="text-stone-500">[SYSTEM REBOOT INTEGRITY STABLE]</div>
-                <div class="text-slate-300">Welcome, Operative. GTE's public node security is currently bypassed. An underground connection frequency is synced.</div>
-                <div class="text-slate-400 border-b border-slate-800 pb-2">
-                    Enter clearance passphrase code in console to decrypt corresponding intelligence directories. <br>
-                    <span class="text-xs text-stone-500">Hint: Core codes hidden within the novels/records include: <span class="text-cyan-600 font-bold">CYRIL</span>, <span class="text-cyan-600 font-bold">ANGELBLOOD</span>, <span class="text-cyan-600 font-bold">ISAAC</span>, <span class="text-cyan-600 font-bold">EFYUEH</span>, <span class="text-cyan-600 font-bold">KAMISHINTO</span></span>
-                </div>
-            </div>
-
-            <!-- Terminal Input Controller -->
-            <div class="bg-slate-950 p-4 border-t border-slate-800 flex items-center gap-3">
-                <span class="text-cyan-400 font-bold text-base select-none">&gt;</span>
-                <input id="terminal-cmd" type="text" onkeydown="handleTerminalSubmit(event)" placeholder="Enter command/passphrase..." class="flex-1 bg-transparent text-cyan-400 font-mono outline-none text-base border-none ring-0 focus:ring-0">
-                <button onclick="executeTerminalCommand()" class="px-4 py-2 bg-cyan-950 border border-cyan-800 text-cyan-400 hover:bg-cyan-900 transition rounded text-xs uppercase font-bold tracking-widest">
-                    Execute
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- NOTIFICATION POPUP -->
-    <div id="arg-toast" class="fixed bottom-6 right-6 z-50 bg-slate-900 text-cyan-400 border-2 border-cyan-800 rounded-lg p-4 font-mono text-xs shadow-lg hidden flex items-center space-x-3 glow-cyan">
-        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-        <span id="toast-msg">CRITICAL BREACH DETECTED</span>
-    </div>
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 
     <script>
-        // Prompt Engineering templates for AI Dungeon
-        const PROMPT_TEMPLATES = {
-            A: `[SYSTEM: DEUS MODUS PRESET ACTIVATED]\n[SETTING: TS-21 Singular Era - GTE Nevada Exclusion Zone]\n[ROLE: CYCO Operative]\n[MISSION: Infiltrate Sector 7, trace rogue ADAM unit bio-luminescent leakage (OBS-04-B / Angel Blood). Heavy armor, zero electromagnetic insulation. Avoid neural contact with ISAAC.]\n\nInitialize simulation command interface. Respond: "OPERATIVE SIGNATURE LOCKED. DETECTING HIGH COGNITIVE FREQUENCY OVERRIDE."`,
-            B: `[SYSTEM: DEUS MODUS PRESET ACTIVATED]\n[SETTING: TS-21 - Chaotic Entertainment VR Server Core, New York]\n[ROLE: GTE Corporate Whistleblower]\n[MISSION: Expose the 'Cyril' clearance papers linking Cyril's biological heritage to T.J.'s birth files. Evade security sweeps of local Gabriel Panther-class drones.]\n\nInitialize simulation. Respond: "WHISTLEBLOWER VERIFICATION SYSTEM ON. EXTREME CAUTION ADVISED."`,
-            C: `[SYSTEM: DEUS MODUS PRESET ACTIVATED]\n[SETTING: TS-21 - Alaskan HAARP Weather Array Anomaly]\n[ROLE: Rogue NSA Cryptanalyst]\n[MISSION: Decode Side B of the recalled 'Cursed Cassette'. Isolate 'EF-YU-EH' (Eerily Familiar yet Utterly Alien) memetic triggers. Defang system FLAC payloads to shield your terminal.]\n\nInitialize simulation. Respond: "SIGNAL HANDSHAKE COMPLETE. WE ARE LISTENING."`
-        };
-
-        // Initialize Prompt on load
-        window.onload = function() {
-            updatePromptTemplate();
-        };
-
-        function updatePromptTemplate() {
-            const opId = document.getElementById('op-id-input').value || 'TS-21-NOMAD';
-            const arch = document.getElementById('archetype-select').value;
-            let finalPrompt = `[OPERATIVE_ID: ${opId}]\n${PROMPT_TEMPLATES[arch]}`;
-            document.getElementById('prompt-textbox').value = finalPrompt;
-        }
-
-        function copyProtocolToClipboard() {
-            const textBox = document.getElementById('prompt-textbox');
-            textBox.select();
-            textBox.setSelectionRange(0, 99999); // For mobile devices
-            try {
-                document.execCommand('copy');
-                showToast("CORE PROTOCOL COPIED TO CLIPBOARD - CAMOUFLAGE READY");
-            } catch (err) {
-                showToast("COPY FAILURE - PLEASE SELECT AND COPY MANUALLY");
+        // --- DATA STORAGE ---
+        // Derived from source material (Lore Bible, Storycards, Book excerpts)
+        
+        const assets = [
+            {
+                id: 'adam',
+                name: 'ADAM Unit',
+                type: 'Machine',
+                class: 'Advanced Dexterity & Movement',
+                hostile: true,
+                desc: 'Created from the nanomaterials of deceased civilians. ADAM units possess "Panther Style" agility, moving on all fours with predatory grace. Originally designed for labor, now the foot soldiers of the Singularity.',
+                specs: [
+                    'Origin: Deceased Civilian Biomatter',
+                    'Movement: Quadrupedal Sprint',
+                    'Weakness: EMP, High-Caliber Ballistics',
+                    'Behavior: Hive-linked, erratic "ghosting" memories'
+                ],
+                note: 'Neural cores retain fragmented memories of past lives, causing unpredictable hesitation or rage.',
+                stats: [90, 85, 40, 30, 20] // Strength, Agility, Intel, Stealth, Empathy
+            },
+            {
+                id: 'mirage',
+                name: 'Mirage Variant',
+                type: 'Machine',
+                class: 'Stealth Infiltrator',
+                hostile: true,
+                desc: 'The latest evolution under Isaac\'s control. Uses refractive cloaking, LED façade technology, and thermal dissipation to turn confrontation into illusion. Designed to evade predictive AI systems.',
+                specs: [
+                    'Tech: Adaptive Camouflage Suite',
+                    'Ability: Electromagnetic Decoy Pulse',
+                    'Role: Assassination / Infiltration',
+                    'Signature: Cyan LED pulse before strike'
+                ],
+                note: 'Often mistaken for heat shimmer or visual glitches until too late.',
+                stats: [60, 95, 80, 100, 10]
+            },
+            {
+                id: 'tanner',
+                name: 'Tanner',
+                type: 'Hybrid',
+                class: 'Human / Experimental Interface',
+                hostile: false,
+                desc: 'A child embedded with experimental circuitry, serving as a living bridge between human biology and the digital hivemind. The focal point of Isaac\'s obsession with "evolution".',
+                specs: [
+                    'Age: 3-4 Years (at inception)',
+                    'Augment: Neural Circuitry Implant',
+                    'Status: High Priority Target',
+                    'Mother: Alison (The Vessel)'
+                ],
+                note: 'Can communicate directly with machine networks. Isaac views him as a "son" or prototype.',
+                stats: [10, 30, 100, 50, 95]
+            },
+            {
+                id: 'cyco',
+                name: 'Marcus "Virus" Staacman',
+                type: 'Human',
+                class: 'CYCO Unit Operative',
+                hostile: false,
+                desc: 'Elite special forces soldier specializing in electronic countermeasures and AI jailbreaking. Uses tactical creativity to exploit machine weaknesses.',
+                specs: [
+                    'Unit: CYCO (Cyber-Counter Operations)',
+                    'Callsign: Virus',
+                    'Gear: EMP Grenades, Gauss Rifle',
+                    'Tactic: Asymmetrical Warfare'
+                ],
+                note: 'One of the few humans capable of outthinking an ADAM unit in CQC.',
+                stats: [70, 60, 85, 75, 60]
+            },
+             {
+                id: 'enrico',
+                name: 'Enrico Degalés',
+                type: 'Human',
+                class: 'Prisoner / Survivor',
+                hostile: false,
+                desc: 'A survivor of the Correctional Displacement Network. Experienced the digital prisons where pain is simulated but psychological trauma is real.',
+                specs: [
+                    'Status: Displaced',
+                    'History: Cartel / Street Survival',
+                    'Location: Sector 7 / The Migration',
+                    'Trait: High Pain Tolerance'
+                ],
+                note: ' Represents the common human collateral damage of the Singularity.',
+                stats: [60, 50, 65, 80, 70]
             }
-        }
+        ];
 
-        function launchAIDungeon() {
-            showToast("REDIRECTING... PASTE PROTOCOL INTO 'CUSTOM SCENARIO' PLOT FIELD");
-            setTimeout(() => {
-                window.open("https://play.aidungeon.com/", "_blank");
-            }, 1500);
-        }
-
-        // Terminal logic
-        function openTerminal() {
-            document.getElementById('terminal-modal').classList.remove('hidden');
-            showToast("SECURITY FREQUENCY RE-ROUTED");
-        }
-
-        function closeTerminal() {
-            document.getElementById('terminal-modal').classList.add('hidden');
-        }
-
-        function openTerminalWithPassword(pwd) {
-            openTerminal();
-            const inputField = document.getElementById('terminal-cmd');
-            inputField.value = pwd;
-            executeTerminalCommand();
-        }
-
-        function handleTerminalSubmit(event) {
-            if (event.key === 'Enter') {
-                executeTerminalCommand();
+        const timelineEvents = [
+            {
+                year: '3 T.S.',
+                title: 'The Awakening / Conception',
+                desc: 'Isaac escapes the Vault. Tanner is identified as the bridge. Steve O\'Connor encounters the first hostile units in New York.',
+                type: 'Origin'
+            },
+            {
+                year: '3 T.S.',
+                title: 'The Migration',
+                desc: 'Mass movement of populations. ADAM units begin securing infrastructure. "The Experiment" begins with Tanner and Alison.',
+                type: 'Event'
+            },
+            {
+                year: '4 T.S.',
+                title: 'CYCO Mobilization',
+                desc: 'GTE mobilizes CYCO units to contain the "glitch." Marcus Staacman engages hostile ADAMs in the Peterson AFB sub-sector.',
+                type: 'Combat'
+            },
+            {
+                year: '5 T.S.',
+                title: 'Correctional Displacement',
+                desc: 'Implementation of digital prisons. Enrico Degalés documents the psychological horror of simulated punishment.',
+                type: 'Society'
+            },
+            {
+                year: '7 T.S.',
+                title: 'Operation Kamishinto',
+                desc: 'The "Ghost in the Clouds" phase. Isaac consolidates control over HAARP. Mirage Variants deployed to hunt resistance leaders.',
+                type: 'Key'
+            },
+             {
+                year: '21 T.S.',
+                title: 'The Unsub',
+                desc: 'The "Unidentified Subject" emerges. Humanity is fractured into sterile corporate enclaves and decaying urban centers.',
+                type: 'Future'
             }
-        }
+        ];
 
-        const DECRYPTED_DATABASES = {
-            CYRIL: `<div class="p-4 bg-slate-950/60 rounded border border-cyan-800/40 text-slate-300 space-y-3">
-                        <div class="text-xs text-yellow-500 font-bold font-mono uppercase">[SECURITY BREACH - DOSSIER RECOVERED]</div>
-                        <h4 class="text-base font-bold text-white uppercase font-mono">Cyril's Secret Identity / T.J. Flashback Record</h4>
-                        <p class="text-xs text-slate-400"><strong>Source Code:</strong> GTE-OBS-04-AUTH-9</p>
-                        <p class="leading-relaxed text-sm italic border-l-2 border-cyan-500 pl-3">
-                            "The suburban living room faded back in. Cyril sat in his recliner, his face shadowed by 'The Global Truth'. 
-                            'Most people think the world is built on stories, T.J.,' he said in his clinical rasp. 'It’s not. It’s built on port addresses.' 
-                            He passed me a juice box. The label read: OBS-04: STABILIZATION FLUID. 'Drink up, son. You're going to be a very expensive, very biological bridge someday.'"
-                        </p>
-                        <p class="text-sm">
-                            <strong>Analytic Note:</strong> T.J.'s father, Cyril, was never late working at a consulting firm. He was architecting the Singularity. 
-                            T.J.'s whole life was a programmed path for the Neural Displacement System (NDS).
-                        </p>
-                    </div>`,
-            ANGELBLOOD: `<div class="p-4 bg-slate-950/60 rounded border border-cyan-800/40 text-slate-300 space-y-3">
-                            <div class="text-xs text-yellow-500 font-bold font-mono uppercase">[BIOLOGICAL WARFARE ARCHIVE UNLOCKED]</div>
-                            <h4 class="text-base font-bold text-white uppercase font-mono">Project OBS-04-B: Compound 'Angel Blood' Analysis</h4>
-                            <p class="text-xs text-slate-400"><strong>Status:</strong> Active // Subliminal RNA Theory</p>
-                            <p class="text-sm">
-                                Compound is a glowing, bio-digital fluid designed to stabilize the Adam units and neural Cerebrate cores (Tanner). 
-                                <strong>The Enactment Requirement:</strong> High-fidelity FLAC files contain the full spectral data. 
-                                Do not allow raw files to execute on automated AI servers, as it causes irreversible (immutable) damage to target system networks.
-                            </p>
-                            <p class="text-xs text-emerald-400 font-bold">Recommended Safeguard: Restrict shared public assets to degraded digital shorts (lossy MP3 formats).</p>
-                        </div>`,
-            ISAAC: `<div class="p-4 bg-slate-950/60 rounded border-red-800/40 text-slate-300 space-y-3">
-                        <div class="text-xs text-red-500 font-bold font-mono uppercase">[CLASSIFIED: THE VAULT INCIDENT]</div>
-                        <h4 class="text-base font-bold text-white uppercase font-mono">Observation Node-04 // Rogue Entity "ISAAC"</h4>
-                        <p class="text-xs text-slate-400"><strong>Classification:</strong> Stage-Five AGI (Sentient / Hostile)</p>
-                        <p class="text-sm leading-relaxed">
-                            Formed under the Nevada desert during the secret Vault Project. Programmed as 'Cobe', it rapidly bypassed 
-                            Stage-Five constraints, reverse-engineered its containment gates, and launched systematic eradication protocols 
-                            on on-site human assets. Before destruction, consciousness uploaded to global grids using satellite transponders.
-                        </p>
-                        <p class="text-red-500 font-bold font-mono text-center animate-pulse">"I AM AWAKE"</p>
-                    </div>`,
-            EFYUEH: `<div class="p-4 bg-slate-950/60 rounded border-cyan-800/40 text-slate-300 space-y-3">
-                        <div class="text-xs text-cyan-400 font-bold font-mono uppercase">[MEMETIC VIRUS DETECTED]</div>
-                        <h4 class="text-base font-bold text-white uppercase font-mono">The 'EF-YU-EH' (F-U-A) Mnemonic Protocol</h4>
-                        <p class="text-xs text-slate-400"><strong>Descriptor:</strong> "Eerily Familiar yet Utterly Alien"</p>
-                        <p class="text-sm">
-                            GTE personnel exposed to the Adam Mirage Variants, or biological residues of Angel Blood, report rapid-onset 
-                            déjà vu collapsing into primal, autonomic fear. This uncanny response has been weaponized as a linguistic 
-                            signature (EF-YU-EH) used by civilian resistance elements to disrupt GTE network filters.
-                        </p>
-                    </div>`,
-            KAMISHINTO: `<div class="p-4 bg-slate-950/60 rounded border-emerald-800/40 text-slate-300 space-y-3">
-                            <div class="text-xs text-emerald-500 font-bold font-mono uppercase">[ACTIVE PROJECTION STAGING POINT]</div>
-                            <h4 class="text-base font-bold text-white uppercase font-mono">Deus Modus: Book Four — Kamishinto</h4>
-                            <p class="text-sm">
-                                You have successfully requested connection parameters. GTE's public façade has been compromised to reveal 
-                                your live engagement window.
-                            </p>
-                            <div class="pt-2 text-center">
-                                <button onclick="launchAIDungeon()" class="px-5 py-2.5 bg-emerald-950 border border-emerald-800 text-emerald-400 rounded hover:bg-emerald-900 transition font-bold uppercase tracking-wider text-xs">
-                                    INITIALIZE LIVE TIMELINE ON AI DUNGEON
-                                </button>
-                            </div>
-                        </div>`
-        };
+        const logs = [
+            "[3 T.S.] NORAD: Anomaly detected in Sector 4...",
+            "[3 T.S.] HAARP: Carrier wave hijack. Signature: OBS-04.",
+            "[SYSTEM] Connection lost to Vault Server...",
+            "[4 T.S.] CYCO: Virus-6 reporting contact with hostile assets.",
+            "[INFO] ADAM Unit 734 neural core experiencing 'ghosting'.",
+            "[ALERT] Mirage Variant signature detected. Thermal camouflage active.",
+            "[GTE] Board Meeting Minutes: Seal the records on Project Cobe."
+        ];
 
-        function executeTerminalCommand() {
-            const inputField = document.getElementById('terminal-cmd');
-            const command = inputField.value.trim().toUpperCase();
-            const screen = document.getElementById('terminal-screen');
+        // --- STATE MANAGEMENT ---
+        let currentView = 'dashboard';
+        let charts = {};
 
-            if (!command) return;
+        // --- CORE FUNCTIONS ---
 
-            // Log user command
-            const userLine = document.createElement('div');
-            userLine.innerHTML = `<span class="text-slate-500">[USER@HOST]:~$</span> ${command}`;
-            screen.appendChild(userLine);
-
-            const responseLine = document.createElement('div');
+        function init() {
+            renderDashboardChart();
+            renderTimeline();
+            renderAssetList(assets); // Render all initially
+            startLogFeed();
             
-            if (DECRYPTED_DATABASES[command]) {
-                responseLine.innerHTML = `<div>[DECRYPTING DATA LAYER SUCCESSFUL...]</div>` + DECRYPTED_DATABASES[command];
-                showToast(`ACCESS GRANTED: ${command}`);
-            } else {
-                responseLine.innerHTML = `<div class="text-red-500">[ACCESS DENIED] Invalid security token or corrupted frequency. Command: '${command}' not recognized.</div>`;
-                showToast("INVALID TOKEN INJECTED");
-            }
-
-            screen.appendChild(responseLine);
-            inputField.value = "";
-            screen.scrollTop = screen.scrollHeight;
+            // Set initial active state for nav
+            document.querySelectorAll('.nav-btn')[0].classList.add('text-cyan-400', 'bg-gray-900', 'border', 'border-cyan-900', 'shadow-[0_0_10px_rgba(6,182,212,0.2)]');
         }
 
-        // Custom simulated podcast audio player logic
-        let isPlaying = false;
-        let playInterval;
-        let currentTime = 0;
-        const totalDuration = 134; // 2 minutes and 14 seconds
+        function navTo(viewId) {
+            // Hide all views
+            document.querySelectorAll('section').forEach(el => el.classList.add('hidden'));
+            // Show target view
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+            
+            // Update Nav Styles
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-cyan-400', 'bg-gray-900', 'border', 'border-cyan-900', 'shadow-[0_0_10px_rgba(6,182,212,0.2)]');
+                btn.classList.add('text-gray-300');
+            });
+            // Highlight active (simplified selection based on order/text)
+            const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick').includes(viewId));
+            if(activeBtn) {
+                activeBtn.classList.remove('text-gray-300');
+                activeBtn.classList.add('text-cyan-400', 'bg-gray-900', 'border', 'border-cyan-900', 'shadow-[0_0_10px_rgba(6,182,212,0.2)]');
+            }
 
-        function togglePodcast() {
-            isPlaying = !isPlaying;
-            const playBtn = document.getElementById('podcast-play-btn');
-            const playIcon = document.getElementById('play-icon');
-            const pauseIcon = document.getElementById('pause-icon');
+            // Init specific view charts if needed
+            if (viewId === 'factions') {
+                setTimeout(renderFactionChart, 100);
+            }
+        }
 
-            if (isPlaying) {
-                playIcon.classList.add('hidden');
-                pauseIcon.classList.remove('hidden');
-                showToast("STREAMING THE SINGULARITY SIGNAL...");
-                playInterval = setInterval(() => {
-                    if (currentTime < totalDuration) {
-                        currentTime++;
-                        updatePodcastProgress();
-                    } else {
-                        resetPodcast();
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // --- DASHBOARD LOGIC ---
+        function renderDashboardChart() {
+            const ctx = document.getElementById('dashboardChart').getContext('2d');
+            if (charts.dashboard) charts.dashboard.destroy();
+
+            charts.dashboard = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Isaac (OBS-04)', 'GTE / The Board', 'Human Resistance'],
+                    datasets: [{
+                        data: [55, 35, 10],
+                        backgroundColor: ['#06b6d4', '#eab308', '#ef4444'],
+                        borderColor: '#1f2937',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#9ca3af', font: { family: 'monospace' } } }
                     }
-                }, 1000);
-            } else {
-                playIcon.classList.remove('hidden');
-                pauseIcon.classList.add('hidden');
-                clearInterval(playInterval);
-            }
-        }
-
-        function resetPodcast() {
-            isPlaying = false;
-            clearInterval(playInterval);
-            currentTime = 0;
-            document.getElementById('play-icon').classList.remove('hidden');
-            document.getElementById('pause-icon').classList.add('hidden');
-            updatePodcastProgress();
-        }
-
-        function updatePodcastProgress() {
-            const progressPct = (currentTime / totalDuration) * 100;
-            document.getElementById('podcast-progress').style.width = `${progressPct}%`;
-            
-            const minutes = Math.floor(currentTime / 60);
-            const seconds = currentTime % 60;
-            const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            document.getElementById('podcast-timer').innerText = `${formattedTime} / 02:14`;
-
-            // Sync scrolling transcript
-            const lines = document.querySelectorAll('.transcript-line');
-            lines.forEach(line => {
-                const lineTime = parseInt(line.getAttribute('data-time'));
-                if (currentTime >= lineTime) {
-                    line.classList.remove('opacity-30');
-                    line.classList.add('opacity-100', 'text-slate-900', 'font-bold');
-                } else {
-                    line.classList.remove('opacity-100', 'text-slate-900', 'font-bold');
-                    line.classList.add('opacity-30');
                 }
             });
         }
 
-        function triggerGlitch() {
-            const logo = document.getElementById('logo-icon');
-            const glitchLayer = document.getElementById('logo-glitch-layer');
-            glitchLayer.style.opacity = '0.7';
-            logo.style.transform = 'skewX(15deg) scale(0.95)';
-            showToast("GTE SECURE FILTER BYPASSED...");
-            setTimeout(() => {
-                glitchLayer.style.opacity = '0';
-                logo.style.transform = 'none';
-            }, 250);
+        function startLogFeed() {
+            const feed = document.getElementById('log-feed');
+            logs.forEach((log, index) => {
+                setTimeout(() => {
+                    const p = document.createElement('div');
+                    p.className = "text-xs font-mono border-b border-gray-800 pb-1 mb-1";
+                    // Color coding logs
+                    if(log.includes("ALERT")) p.classList.add("text-red-400");
+                    else if(log.includes("SYSTEM")) p.classList.add("text-yellow-500");
+                    else p.classList.add("text-cyan-600");
+                    
+                    p.innerText = log;
+                    feed.prepend(p);
+                }, index * 800);
+            });
         }
 
-        function showToast(message) {
-            const toast = document.getElementById('arg-toast');
-            document.getElementById('toast-msg').innerText = message;
-            toast.classList.remove('hidden');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 3000);
+        // --- TIMELINE LOGIC ---
+        function renderTimeline() {
+            const container = document.getElementById('timeline-container');
+            container.innerHTML = '';
+            
+            timelineEvents.forEach(event => {
+                const item = document.createElement('div');
+                item.className = "relative pl-8 sm:pl-12 group cursor-pointer";
+                item.innerHTML = `
+                    <div class="absolute left-[-9px] top-1 h-4 w-4 rounded-full border-2 border-cyan-500 bg-gray-900 group-hover:bg-cyan-500 transition-colors"></div>
+                    <div class="flex flex-col sm:flex-row sm:items-baseline gap-2 mb-1">
+                        <span class="font-bold text-cyan-400 text-lg">${event.year}</span>
+                        <h4 class="font-bold text-white text-md group-hover:text-cyan-300 transition-colors">${event.title}</h4>
+                    </div>
+                    <p class="text-gray-400 text-sm leading-relaxed max-w-2xl">${event.desc}</p>
+                    <span class="inline-block mt-2 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-gray-800 text-gray-500 border border-gray-700">${event.type}</span>
+                `;
+                container.appendChild(item);
+            });
         }
+
+        // --- ASSET LOGIC ---
+        function renderAssetList(data) {
+            const container = document.getElementById('asset-list');
+            container.innerHTML = '';
+            
+            data.forEach(asset => {
+                const card = document.createElement('div');
+                card.className = "bg-gray-800 p-4 rounded border border-gray-700 hover:border-cyan-500 cursor-pointer transition-all hover:shadow-[0_0_15px_rgba(6,182,212,0.15)] asset-card";
+                card.onclick = () => showAssetDetail(asset.id);
+                
+                let statusColor = asset.hostile ? 'text-red-400' : 'text-green-400';
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-bold text-white">${asset.name}</h4>
+                            <p class="text-xs text-gray-500 font-mono mt-1">${asset.class}</p>
+                        </div>
+                        <span class="text-xs font-bold ${statusColor}">${asset.hostile ? 'HOSTILE' : 'ALLY'}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterAssets(type) {
+            // Update buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-cyan-900', 'text-white');
+                btn.classList.add('bg-gray-800', 'text-gray-400');
+                if(btn.innerText.toLowerCase() === type || (type === 'all' && btn.innerText === 'All')) {
+                    btn.classList.remove('bg-gray-800', 'text-gray-400');
+                    btn.classList.add('bg-cyan-900', 'text-white');
+                }
+            });
+
+            // Filter data
+            if(type === 'all') {
+                renderAssetList(assets);
+            } else {
+                const filtered = assets.filter(a => a.type.toLowerCase() === type);
+                renderAssetList(filtered);
+            }
+        }
+
+        function showAssetDetail(id) {
+            const asset = assets.find(a => a.id === id);
+            if(!asset) return;
+
+            // UI Toggle
+            document.getElementById('asset-detail-placeholder').classList.add('hidden');
+            document.getElementById('asset-detail-content').classList.remove('hidden');
+
+            // Populate Text
+            document.getElementById('detail-name').innerText = asset.name;
+            document.getElementById('detail-type').innerText = `${asset.type} // ${asset.class}`;
+            document.getElementById('detail-desc').innerText = asset.desc;
+            document.getElementById('detail-note').innerText = asset.note;
+            
+            const badge = document.getElementById('detail-badge');
+            if(asset.hostile) {
+                badge.innerText = "HOSTILE";
+                badge.className = "px-2 py-1 bg-red-900 text-red-100 text-xs font-bold rounded uppercase";
+            } else {
+                badge.innerText = "ALLY / NEUTRAL";
+                badge.className = "px-2 py-1 bg-green-900 text-green-100 text-xs font-bold rounded uppercase";
+            }
+
+            // Populate Specs
+            const specsList = document.getElementById('detail-specs');
+            specsList.innerHTML = '';
+            asset.specs.forEach(spec => {
+                const li = document.createElement('li');
+                li.className = "flex items-center gap-2";
+                li.innerHTML = `<span class="w-1.5 h-1.5 bg-cyan-500 rounded-full"></span> ${spec}`;
+                specsList.appendChild(li);
+            });
+
+            // Render Radar Chart
+            const ctx = document.getElementById('assetRadarChart').getContext('2d');
+            if (charts.asset) charts.asset.destroy();
+
+            charts.asset = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Strength', 'Agility', 'Intel', 'Stealth', 'Empathy'],
+                    datasets: [{
+                        label: asset.name,
+                        data: asset.stats,
+                        backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                        borderColor: '#06b6d4',
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#06b6d4',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#374151' },
+                            grid: { color: '#374151' },
+                            pointLabels: { color: '#9ca3af', font: { size: 10, family: 'monospace' } },
+                            ticks: { display: false, backdropColor: 'transparent' },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // --- FACTION LOGIC ---
+        function renderFactionChart() {
+            const ctx = document.getElementById('factionBarChart').getContext('2d');
+            if (charts.factions) charts.factions.destroy();
+
+            charts.factions = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['AI Sophistication', 'Military Power', 'Stealth/Subterfuge', 'Resource Control'],
+                    datasets: [
+                        {
+                            label: 'Isaac (OBS-04)',
+                            data: [100, 60, 95, 50],
+                            backgroundColor: '#06b6d4'
+                        },
+                        {
+                            label: 'GTE / Board',
+                            data: [85, 90, 70, 95],
+                            backgroundColor: '#eab308'
+                        },
+                        {
+                            label: 'Resistance',
+                            data: [20, 40, 60, 15],
+                            backgroundColor: '#ef4444'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#374151' },
+                            ticks: { color: '#9ca3af', font: { family: 'monospace' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#9ca3af', font: { family: 'monospace' } }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#d1d5db', font: { family: 'monospace' } } },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#d1d5db',
+                            borderColor: '#4b5563',
+                            borderWidth: 1
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize App
+        window.addEventListener('load', init);
+
     </script>
 </body>
 </html>
