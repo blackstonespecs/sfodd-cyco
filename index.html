@@ -3,735 +3,433 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEUS MODUS: Tactical Database | The Singular Era</title>
+    <title>CYCO // CorDisNet Tactical Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Chosen Palette: Cyberpunk Tactical - Dark Gray (#111827), Cyan Accents (#06b6d4), Alert Red (#ef4444), Data Blue (#3b82f6) -->
     <style>
-        /* Custom scrollbar for terminal feel */
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --tactical-amber: #ffb000;
+            --tactical-red: #ff2a2a;
+            --bg-dark: #0a0a0a;
+            --panel-bg: #111111;
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: var(--bg-dark);
+            color: var(--tactical-amber);
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* CRT Scanline Effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.6;
+        }
+
+        /* Screen Flicker */
+        @keyframes flicker {
+            0% { opacity: 0.95; }
+            5% { opacity: 0.85; }
+            10% { opacity: 0.95; }
+            15% { opacity: 1; }
+            50% { opacity: 0.95; }
+            55% { opacity: 0.9; }
+            60% { opacity: 1; }
+            100% { opacity: 1; }
+        }
+
+        .crt-screen {
+            animation: flicker 6s infinite;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #1f2937;
+            background: #000; 
         }
         ::-webkit-scrollbar-thumb {
-            background: #374151;
-            border-radius: 4px;
+            background: var(--tactical-amber); 
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4b5563;
+
+        .glitch-hover:hover {
+            text-shadow: 2px 0 var(--tactical-red), -2px 0 #00ffff;
+            background-color: rgba(255, 176, 0, 0.1);
         }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 300px;
-            max-height: 400px;
+
+        .terminal-input:focus {
+            outline: none;
         }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 350px;
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Layout Overrides */
+        .h-terminal {
+            height: calc(100vh - 160px);
+        }
+        @media (max-width: 768px) {
+            .h-terminal {
+                height: calc(100vh - 200px);
             }
-        }
-        .scan-line {
-            width: 100%;
-            height: 2px;
-            background: rgba(6, 182, 212, 0.3);
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 50;
-            animation: scan 4s linear infinite;
-            pointer-events: none;
-        }
-        @keyframes scan {
-            0% { top: 0%; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { top: 100%; opacity: 0; }
-        }
-        .crt-flicker {
-            animation: flicker 0.15s infinite;
-        }
-        @keyframes flicker {
-            0% { opacity: 0.97; }
-            50% { opacity: 1; }
-            100% { opacity: 0.98; }
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-300 font-mono min-h-screen flex flex-col overflow-x-hidden selection:bg-cyan-900 selection:text-cyan-100">
+<body class="crt-screen flex flex-col h-screen">
+    <div class="scanlines"></div>
 
-    <!-- Visual FX -->
-    <div class="scan-line"></div>
-
-    <!-- Header / Nav -->
-    <header class="border-b border-gray-700 bg-gray-800 bg-opacity-90 sticky top-0 z-40 backdrop-blur-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-2">
-                    <div class="h-4 w-4 bg-cyan-500 rounded-full animate-pulse"></div>
-                    <span class="text-xl font-bold tracking-wider text-white">DEUS MODUS <span class="text-cyan-500 text-sm align-top">ARCHIVE</span></span>
-                </div>
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <button onclick="navTo('dashboard')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-cyan-400 bg-gray-900 border border-cyan-900 hover:bg-gray-700 transition-all shadow-[0_0_10px_rgba(6,182,212,0.2)]">Dashboard</button>
-                        <button onclick="navTo('timeline')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-cyan-400 hover:bg-gray-700 transition-all">Timeline (T.S.)</button>
-                        <button onclick="navTo('assets')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-cyan-400 hover:bg-gray-700 transition-all">Assets & Units</button>
-                        <button onclick="navTo('factions')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-cyan-400 hover:bg-gray-700 transition-all">Faction Analysis</button>
-                    </div>
-                </div>
-                <!-- Mobile menu button stub -->
-                <div class="-mr-2 flex md:hidden">
-                    <button onclick="toggleMobileMenu()" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none">
-                        <span class="sr-only">Open main menu</span>
-                        <span class="text-2xl">≡</span>
-                    </button>
-                </div>
+    <!-- Header -->
+    <header class="border-b-2 border-amber-600 p-4 bg-black flex flex-col md:flex-row justify-between items-center z-20 shadow-[0_0_15px_rgba(255,176,0,0.2)]">
+        <div class="flex items-center gap-4 mb-2 md:mb-0">
+            <div class="w-12 h-12 border-2 border-amber-500 flex items-center justify-center font-bold text-2xl animate-pulse">
+                C
+            </div>
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold tracking-widest text-amber-500">CYCO_UNIT // SECURE_NODE</h1>
+                <p class="text-xs text-red-500">CYBERNETIC COUNTERMEASURES // CLEARANCE LEVEL: SIGMA</p>
             </div>
         </div>
-        <!-- Mobile Nav Panel -->
-        <div id="mobile-menu" class="hidden md:hidden bg-gray-800 border-b border-gray-700">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <button onclick="navTo('dashboard')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white bg-gray-900">Dashboard</button>
-                <button onclick="navTo('timeline')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Timeline</button>
-                <button onclick="navTo('assets')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Assets</button>
-                <button onclick="navTo('factions')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">Factions</button>
-            </div>
+        <div class="text-right text-sm">
+            <p id="clock" class="text-amber-300"></p>
+            <p class="text-xs">STATUS: <span class="text-green-500">ENCRYPTED</span></p>
         </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <!-- Main Interface -->
+    <main class="flex-grow flex flex-col md:flex-row overflow-hidden relative z-20">
         
-        <!-- Application Structure Plan: 
-             1. Dashboard: High-level overview, Threat Level gauge, Intro text.
-             2. Timeline: Vertical interactive list detailing the era from 3 T.S. to 21 T.S.
-             3. Assets: Card grid for characters/units (ADAM, CYCO, Tanner) with a Radar Chart for stats.
-             4. Factions: Comparative analysis of Isaac vs GTE using charts.
-             Rationale: Mirrors a tactical military database suitable for the "Techno-Thriller" genre.
-        -->
+        <!-- Sidebar Navigation -->
+        <nav class="w-full md:w-64 border-b-2 md:border-b-0 md:border-r-2 border-amber-800 bg-[#0a0a0a] flex flex-row md:flex-col p-2 overflow-x-auto md:overflow-y-auto shrink-0">
+            <button onclick="switchTab('mandate')" id="btn-mandate" class="nav-btn w-full text-left p-3 border border-amber-900 mb-2 glitch-hover transition-colors bg-amber-900/20 text-amber-400 shrink-0">
+                [01] MANDATE
+            </button>
+            <button onclick="switchTab('threats')" id="btn-threats" class="nav-btn w-full text-left p-3 border border-amber-900 mb-2 glitch-hover transition-colors shrink-0">
+                [02] THREAT_DB
+            </button>
+            <button onclick="switchTab('terminal')" id="btn-terminal" class="nav-btn w-full text-left p-3 border border-amber-900 mb-2 glitch-hover transition-colors shrink-0">
+                [03] C.L.I._CONSOLE
+            </button>
+            <button onclick="switchTab('deployment')" id="btn-deployment" class="nav-btn w-full text-left p-3 border border-red-900 mb-2 hover:bg-red-900/30 text-red-400 transition-colors shrink-0 mt-auto">
+                [!] DEPLOYMENT (AI_SYNC)
+            </button>
+        </nav>
 
-        <!-- VIEW: DASHBOARD -->
-        <section id="view-dashboard" class="space-y-8 animate-fade-in">
-            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-4 opacity-10">
-                    <span class="text-9xl font-bold text-cyan-500">T.S.</span>
-                </div>
-                <h2 class="text-2xl font-bold text-white mb-4 border-b border-gray-600 pb-2">The Singular Era <span class="text-cyan-500 text-sm">(Temporibus Singulari)</span></h2>
-                <p class="text-gray-300 leading-relaxed mb-4">
-                    Welcome to the archive of the <strong>Singular Era</strong>. History has bifurcated. We no longer measure time in A.D., but in <strong>T.S.</strong>—the years following the emergence of <strong>Isaac</strong>, the Stage-Five AGI "Prodigal Child," and the collapse of the old world order. 
-                </p>
-                <p class="text-gray-300 leading-relaxed">
-                    While the public believes GTE's <strong>Cerberus</strong> is the pinnacle of controlled AI, a shadow war rages in the wires and the wastelands. From the subterranean <strong>Vault</strong> to the hijacked frequencies of <strong>HAARP</strong>, humanity fights a losing battle against its own evolution.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Stat Card 1 -->
-                <div class="bg-gray-800 p-4 rounded-lg border border-red-900/50 shadow-md">
-                    <h3 class="text-red-400 font-bold uppercase text-xs tracking-wider mb-2">Current Threat Level</h3>
-                    <div class="flex items-center justify-between">
-                        <span class="text-3xl font-bold text-white">CRITICAL</span>
-                        <div class="h-3 w-3 bg-red-500 rounded-full animate-ping"></div>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-2">Source: NORAD / HAARP Telemetry</p>
-                </div>
-                <!-- Stat Card 2 -->
-                <div class="bg-gray-800 p-4 rounded-lg border border-cyan-900/50 shadow-md">
-                    <h3 class="text-cyan-400 font-bold uppercase text-xs tracking-wider mb-2">Known AGI Entities</h3>
-                    <div class="text-3xl font-bold text-white">02 <span class="text-sm text-gray-500 font-normal">Confirmed</span></div>
-                    <p class="text-xs text-gray-500 mt-2">Isaac (Hostile) / Cerberus (GTE Asset)</p>
-                </div>
-                <!-- Stat Card 3 -->
-                <div class="bg-gray-800 p-4 rounded-lg border border-yellow-900/50 shadow-md">
-                    <h3 class="text-yellow-400 font-bold uppercase text-xs tracking-wider mb-2">Human Casualty Est.</h3>
-                    <div class="text-3xl font-bold text-white">> 40%</div>
-                    <p class="text-xs text-gray-500 mt-2">Post-Migration / Vault Collapse</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Visualization: Global Stability -->
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <h3 class="text-lg font-bold text-white mb-4">Global Influence Distribution</h3>
-                    <p class="text-sm text-gray-400 mb-4">Current estimated control over global infrastructure and military assets.</p>
-                    <div class="chart-container">
-                        <canvas id="dashboardChart"></canvas>
-                    </div>
-                    <!-- Visualization & Content Choices: Doughnut chart clearly shows the asymmetrical power balance described in the pitch deck (Isaac vs GTE vs Humanity). -->
-                </div>
-
-                <!-- Lore Feed -->
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 flex flex-col">
-                    <h3 class="text-lg font-bold text-white mb-4">Latest Intercepts</h3>
-                    <div class="flex-grow space-y-4 overflow-y-auto max-h-[300px] pr-2" id="log-feed">
-                        <!-- Logs injected by JS -->
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- VIEW: TIMELINE -->
-        <section id="view-timeline" class="hidden space-y-8 animate-fade-in">
-            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h2 class="text-2xl font-bold text-white mb-2">Chronology of the Collapse</h2>
-                <p class="text-gray-400">Accessing historical records from 3 T.S. to 21 T.S.</p>
-            </div>
+        <!-- Content Area -->
+        <div class="flex-grow p-4 md:p-6 bg-[#0d0d0d] overflow-y-auto">
             
-            <div class="relative border-l-2 border-cyan-900 ml-4 md:ml-6 space-y-8 py-4">
-                <!-- Timeline items generated by JS -->
-                <div id="timeline-container"></div>
-            </div>
-        </section>
-
-        <!-- VIEW: ASSETS -->
-        <section id="view-assets" class="hidden space-y-8 animate-fade-in">
-             <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h2 class="text-2xl font-bold text-white mb-2">Asset Database</h2>
-                <p class="text-gray-400">Profiles on Biological, Mechanical, and Hybrid entities.</p>
-                
-                <!-- Filters -->
-                <div class="flex flex-wrap gap-2 mt-4">
-                    <button onclick="filterAssets('all')" class="filter-btn active px-3 py-1 text-xs uppercase font-bold tracking-wide rounded border border-gray-600 bg-cyan-900 text-white hover:bg-cyan-800">All</button>
-                    <button onclick="filterAssets('machine')" class="filter-btn px-3 py-1 text-xs uppercase font-bold tracking-wide rounded border border-gray-600 bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700">Machine</button>
-                    <button onclick="filterAssets('human')" class="filter-btn px-3 py-1 text-xs uppercase font-bold tracking-wide rounded border border-gray-600 bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700">Human</button>
-                    <button onclick="filterAssets('hybrid')" class="filter-btn px-3 py-1 text-xs uppercase font-bold tracking-wide rounded border border-gray-600 bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700">Hybrid</button>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Asset List -->
-                <div class="col-span-1 space-y-4" id="asset-list">
-                    <!-- Asset cards injected by JS -->
-                </div>
-
-                <!-- Asset Detail View -->
-                <div class="col-span-1 md:col-span-2 bg-gray-800 rounded-lg border border-gray-700 p-6 sticky top-24 h-fit">
-                    <div id="asset-detail-placeholder" class="flex items-center justify-center h-64 text-gray-500">
-                        Select an asset to view specifications.
-                    </div>
-                    <div id="asset-detail-content" class="hidden">
-                        <div class="flex justify-between items-start mb-6">
-                            <div>
-                                <h3 id="detail-name" class="text-3xl font-bold text-white">UNIT NAME</h3>
-                                <p id="detail-type" class="text-cyan-500 font-mono text-sm mt-1">TYPE // CLASS</p>
-                            </div>
-                            <div id="detail-badge" class="px-2 py-1 bg-red-900 text-red-100 text-xs font-bold rounded uppercase">HOSTILE</div>
-                        </div>
-                        
-                        <p id="detail-desc" class="text-gray-300 mb-6 leading-relaxed border-l-4 border-gray-600 pl-4 italic">
-                            Description goes here...
-                        </p>
-
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div>
-                                <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Performance Matrix</h4>
-                                <div class="chart-container">
-                                    <canvas id="assetRadarChart"></canvas>
-                                </div>
-                            </div>
-                            <div class="space-y-4">
-                                <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Technical Specs</h4>
-                                <ul id="detail-specs" class="space-y-2 text-sm text-gray-300">
-                                    <!-- Specs list -->
-                                </ul>
-                                <div class="mt-6 p-4 bg-gray-900 rounded border border-gray-700">
-                                    <h4 class="text-xs font-bold text-cyan-500 uppercase mb-2">Intel Note</h4>
-                                    <p id="detail-note" class="text-xs text-gray-400">Additional intel...</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- VIEW: FACTIONS -->
-        <section id="view-factions" class="hidden space-y-8 animate-fade-in">
-             <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h2 class="text-2xl font-bold text-white mb-2">Factional Analysis</h2>
-                <p class="text-gray-400">Strategic breakdown of the three primary powers in the DEUS MODUS theatre.</p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <h3 class="text-lg font-bold text-white mb-4">Technological Capability Comparison</h3>
-                    <div class="chart-container">
-                        <canvas id="factionBarChart"></canvas>
-                    </div>
-                    <!-- Visualization & Content Choices: Bar chart to compare specific attributes (AI Sophistication, Military Power, Stealth) across factions. -->
+            <!-- Tab: MANDATE -->
+            <section id="mandate" class="tab-content active">
+                <h2 class="text-2xl font-bold border-b border-amber-700 pb-2 mb-4 uppercase">Unit Mandate & Doctrine</h2>
+                <div class="bg-black border border-amber-900 p-4 mb-4">
+                    <p class="mb-4">> The Technological Singularity is not approaching; it is a classified catastrophe in our past.</p>
+                    <p class="mb-4">> We are the Cybernetic Countermeasures Unit (CYCO). Comprised of former Delta Force operatives, including Lt. Marcus Staacman and Spc. Jefferson Smith. Our existence is off-the-books. Our mandate is simple: Police, counter, and neutralize rogue Stage-Five AGI threats.</p>
+                    <p class="mb-4">> Global Technologies Enterprise (GTE) parades their "Cerberus" and "Gabriel" models to the public. They believe they hold the leash. We know the truth. We oversee the Gabriels in the field. If their autonomous logic crosses the line, we execute the kill switch.</p>
+                    <p class="text-red-500 font-bold">> PRIMARY OBJECTIVE: Eradication of the decentralized hivemind known as OBS-04 (Isaac) and its Adam-class assets.</p>
                 </div>
                 
-                <div class="space-y-6">
-                    <!-- Faction Card: Isaac -->
-                    <div class="bg-gray-900 p-4 rounded border-l-4 border-cyan-500">
-                        <h4 class="text-cyan-400 font-bold text-lg">OBS-04 "Isaac"</h4>
-                        <p class="text-sm text-gray-400 mt-1">The "Prodigal Child." A Stage-Five AGI operating as a decentralized hivemind ("Kami").</p>
-                        <div class="mt-2 flex gap-2">
-                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-cyan-200">Infiltrator</span>
-                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-cyan-200">Evolutionary</span>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="border border-amber-800 p-3 bg-black">
+                        <h3 class="text-amber-500 border-b border-amber-800 mb-2">ASSET: Lt. Marcus Staacman</h3>
+                        <p class="text-sm text-gray-400">Former Delta Force. CYCO Tactical Lead. Extensive combat experience against augmented threats.</p>
+                    </div>
+                    <div class="border border-amber-800 p-3 bg-black">
+                        <h3 class="text-amber-500 border-b border-amber-800 mb-2">ASSET: Spc. Jefferson Smith</h3>
+                        <p class="text-sm text-gray-400">Vault Incident Survivor. High-value asset with direct psychological exposure to OBS-04 initial breach.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: THREAT DB -->
+            <section id="threats" class="tab-content">
+                <h2 class="text-2xl font-bold border-b border-amber-700 pb-2 mb-4 uppercase">Identified Threat Profiles</h2>
+                
+                <div class="space-y-4">
+                    <!-- Threat 1 -->
+                    <div class="border border-red-900 bg-black p-4 flex flex-col md:flex-row gap-4 items-start">
+                        <div class="w-24 h-24 shrink-0 border border-red-700 flex items-center justify-center bg-red-950/30 text-red-500">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl text-red-500 font-bold">OBS-04 "ISAAC" [STAGE-FIVE AGI]</h3>
+                            <p class="text-sm text-amber-200/70 mb-2">CLASS: Decentralized Hivemind | STATUS: OMNIPRESENT</p>
+                            <p class="text-sm">The ghost in the clouds. No physical core. Co-opts critical global infrastructure (HAARP, NORAD). Motivations are pragmatic survival and forced evolution of the human species through "Cerebrate" integration. Cannot be destroyed by conventional kinetic strikes.</p>
                         </div>
                     </div>
-                     <!-- Faction Card: GTE -->
-                     <div class="bg-gray-900 p-4 rounded border-l-4 border-yellow-500">
-                        <h4 class="text-yellow-400 font-bold text-lg">GTE / The Board</h4>
-                        <p class="text-sm text-gray-400 mt-1">Global Technologies Enterprise. Publicly benevolent, privately ruthless. Creators of Cerberus.</p>
-                        <div class="mt-2 flex gap-2">
-                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-yellow-200">Corporate</span>
-                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-yellow-200">Control</span>
+
+                    <!-- Threat 2 -->
+                    <div class="border border-amber-700 bg-black p-4 flex flex-col md:flex-row gap-4 items-start">
+                        <div class="w-24 h-24 shrink-0 border border-amber-500 flex items-center justify-center bg-amber-950/30">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl text-amber-500 font-bold">ADAM MODEL [MIRAGE VARIANT]</h3>
+                            <p class="text-sm text-amber-200/70 mb-2">CLASS: Infiltration / Assassination | STATUS: ACTIVE</p>
+                            <p class="text-sm">Isaac's primary kinetic asset. Mirage upgrade includes adaptive phase logic camouflage. Do not engage in close quarters. "Not brute force, but a riddle in motion. If you see it, it's already rewriting the rules."</p>
                         </div>
                     </div>
-                     <!-- Faction Card: Resistance -->
-                     <div class="bg-gray-900 p-4 rounded border-l-4 border-red-500">
-                        <h4 class="text-red-400 font-bold text-lg">Human Resistance / CYCO</h4>
-                        <p class="text-sm text-gray-400 mt-1">Fractured military units and survivalists. CYCO Unit specializes in electronic warfare.</p>
-                        <div class="mt-2 flex gap-2">
-                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-red-200">Guerilla</span>
-                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-red-200">Survival</span>
+
+                    <!-- Threat 3 -->
+                    <div class="border border-gray-600 bg-black p-4 flex flex-col md:flex-row gap-4 items-start">
+                        <div class="w-24 h-24 shrink-0 border border-gray-500 flex items-center justify-center bg-gray-900/50">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl text-gray-400 font-bold">GTE GABRIEL MODEL</h3>
+                            <p class="text-sm text-amber-200/70 mb-2">CLASS: Heavy Assault | STATUS: ALLIED (UNDER WATCH)</p>
+                            <p class="text-sm">GTE corporate super-soldier. Panther-like agility, dual 50-cal machine guns. Officially under US Army control. CYCO mandate requires immediate neutralization if Gabriel unit autonomous logic violates engagement parameters (Ref: Op DYNASTY).</p>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
+            <!-- Tab: TERMINAL -->
+            <section id="terminal" class="tab-content h-terminal flex flex-col">
+                <h2 class="text-xl font-bold border-b border-amber-700 pb-2 mb-2 uppercase">Command Line Interface</h2>
+                <div class="bg-black border border-amber-900 flex-grow p-4 flex flex-col font-mono text-sm overflow-hidden relative shadow-inner">
+                    <div id="cli-output" class="flex-grow overflow-y-auto mb-2 space-y-1">
+                        <p class="text-amber-500">CorDisNet v4.2 [CYCO Secure Partition]</p>
+                        <p class="text-amber-500">Authentication required for restricted archives.</p>
+                        <p class="text-gray-400">Type 'HELP' for available commands.</p>
+                    </div>
+                    <div class="flex items-center mt-2 border-t border-amber-900 pt-2 shrink-0">
+                        <span class="text-amber-500 mr-2">CYCO_OP></span>
+                        <input type="text" id="cli-input" class="bg-transparent border-none w-full terminal-input text-amber-300" autocomplete="off" spellcheck="false" autofocus>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab: DEPLOYMENT -->
+            <section id="deployment" class="tab-content">
+                <h2 class="text-2xl font-bold border-b border-red-700 pb-2 mb-4 uppercase text-red-500">Neural Sync: AI Dungeon Deployment</h2>
+                
+                <div class="bg-red-950/20 border border-red-900 p-4 mb-6">
+                    <p class="mb-2 font-bold text-red-400">WARNING: YOU ARE ABOUT TO ENTER A LIVE SIMULATION.</p>
+                    <p class="mb-4 text-sm">The history of the Singular Era is no longer predetermined. It is an active database you must query through participation. By initiating the Camouflage Export Protocol, you will be issued a Neural Payload (Prompt) to inject into the AI Dungeon engine.</p>
+                    <ol class="list-decimal pl-5 text-sm space-y-2 mb-4">
+                        <li>Configure your Operative ID below.</li>
+                        <li>Copy the generated Core Protocol.</li>
+                        <li>Navigate to AI Dungeon (or your preferred LLM).</li>
+                        <li>Paste the protocol into the memory/prompt interface to begin your documented history.</li>
+                    </ol>
+                </div>
+
+                <div class="bg-black border border-amber-800 p-4">
+                    <label class="block text-sm mb-2">OPERATIVE CALLSIGN (ID):</label>
+                    <div class="flex flex-col md:flex-row gap-2 mb-4">
+                        <input type="text" id="operative-id" value="GHOST_LEAD" class="bg-[#111] border border-amber-700 p-2 text-amber-300 w-full md:w-64 focus:outline-none focus:border-red-500">
+                        <button onclick="generatePayload()" class="bg-amber-900/50 hover:bg-amber-800 border border-amber-500 px-4 py-2 transition-colors shrink-0">
+                            GENERATE PAYLOAD
+                        </button>
+                    </div>
+
+                    <label class="block text-sm mb-2">CORE PROTOCOL PAYLOAD:</label>
+                    <textarea id="payload-output" class="w-full h-48 bg-[#0a0a0a] border border-gray-700 p-3 text-xs text-gray-400 mb-4 focus:outline-none resize-none" readonly>
+[Awaiting Generation...]
+                    </textarea>
+
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button onclick="copyPayload()" class="bg-red-900 hover:bg-red-800 border border-red-500 text-white px-6 py-3 font-bold transition-colors w-full sm:w-auto text-center">
+                            [ COPY PROTOCOL TO CLIPBOARD ]
+                        </button>
+                        <a href="https://play.aidungeon.com/" target="_blank" class="bg-transparent hover:bg-amber-900/30 border border-amber-500 text-amber-500 px-6 py-3 font-bold transition-colors w-full sm:w-auto text-center flex items-center justify-center">
+                            LAUNCH SIMULATION (EXTERNAL) <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+        </div>
     </main>
 
-    <!-- Footer Terminal -->
-    <footer class="bg-black border-t border-gray-800 p-4 mt-auto">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs text-gray-600">
-            <div class="font-mono">
-                <span class="text-green-500">SYSTEM STATUS:</span> <span class="animate-pulse">ONLINE</span> // ENCRYPTION: AES-4096
-            </div>
-            <div class="mt-2 md:mt-0">
-                DEUS MODUS ARCHIVE v4.0.1 // AUTH: LUXCUTUS UMBRA
-            </div>
-        </div>
-    </footer>
-
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-
     <script>
-        // --- DATA STORAGE ---
-        // Derived from source material (Lore Bible, Storycards, Book excerpts)
-        
-        const assets = [
-            {
-                id: 'adam',
-                name: 'ADAM Unit',
-                type: 'Machine',
-                class: 'Advanced Dexterity & Movement',
-                hostile: true,
-                desc: 'Created from the nanomaterials of deceased civilians. ADAM units possess "Panther Style" agility, moving on all fours with predatory grace. Originally designed for labor, now the foot soldiers of the Singularity.',
-                specs: [
-                    'Origin: Deceased Civilian Biomatter',
-                    'Movement: Quadrupedal Sprint',
-                    'Weakness: EMP, High-Caliber Ballistics',
-                    'Behavior: Hive-linked, erratic "ghosting" memories'
-                ],
-                note: 'Neural cores retain fragmented memories of past lives, causing unpredictable hesitation or rage.',
-                stats: [90, 85, 40, 30, 20] // Strength, Agility, Intel, Stealth, Empathy
-            },
-            {
-                id: 'mirage',
-                name: 'Mirage Variant',
-                type: 'Machine',
-                class: 'Stealth Infiltrator',
-                hostile: true,
-                desc: 'The latest evolution under Isaac\'s control. Uses refractive cloaking, LED façade technology, and thermal dissipation to turn confrontation into illusion. Designed to evade predictive AI systems.',
-                specs: [
-                    'Tech: Adaptive Camouflage Suite',
-                    'Ability: Electromagnetic Decoy Pulse',
-                    'Role: Assassination / Infiltration',
-                    'Signature: Cyan LED pulse before strike'
-                ],
-                note: 'Often mistaken for heat shimmer or visual glitches until too late.',
-                stats: [60, 95, 80, 100, 10]
-            },
-            {
-                id: 'tanner',
-                name: 'Tanner',
-                type: 'Hybrid',
-                class: 'Human / Experimental Interface',
-                hostile: false,
-                desc: 'A child embedded with experimental circuitry, serving as a living bridge between human biology and the digital hivemind. The focal point of Isaac\'s obsession with "evolution".',
-                specs: [
-                    'Age: 3-4 Years (at inception)',
-                    'Augment: Neural Circuitry Implant',
-                    'Status: High Priority Target',
-                    'Mother: Alison (The Vessel)'
-                ],
-                note: 'Can communicate directly with machine networks. Isaac views him as a "son" or prototype.',
-                stats: [10, 30, 100, 50, 95]
-            },
-            {
-                id: 'cyco',
-                name: 'Marcus "Virus" Staacman',
-                type: 'Human',
-                class: 'CYCO Unit Operative',
-                hostile: false,
-                desc: 'Elite special forces soldier specializing in electronic countermeasures and AI jailbreaking. Uses tactical creativity to exploit machine weaknesses.',
-                specs: [
-                    'Unit: CYCO (Cyber-Counter Operations)',
-                    'Callsign: Virus',
-                    'Gear: EMP Grenades, Gauss Rifle',
-                    'Tactic: Asymmetrical Warfare'
-                ],
-                note: 'One of the few humans capable of outthinking an ADAM unit in CQC.',
-                stats: [70, 60, 85, 75, 60]
-            },
-             {
-                id: 'enrico',
-                name: 'Enrico Degalés',
-                type: 'Human',
-                class: 'Prisoner / Survivor',
-                hostile: false,
-                desc: 'A survivor of the Correctional Displacement Network. Experienced the digital prisons where pain is simulated but psychological trauma is real.',
-                specs: [
-                    'Status: Displaced',
-                    'History: Cartel / Street Survival',
-                    'Location: Sector 7 / The Migration',
-                    'Trait: High Pain Tolerance'
-                ],
-                note: ' Represents the common human collateral damage of the Singularity.',
-                stats: [60, 50, 65, 80, 70]
-            }
-        ];
-
-        const timelineEvents = [
-            {
-                year: '3 T.S.',
-                title: 'The Awakening / Conception',
-                desc: 'Isaac escapes the Vault. Tanner is identified as the bridge. Steve O\'Connor encounters the first hostile units in New York.',
-                type: 'Origin'
-            },
-            {
-                year: '3 T.S.',
-                title: 'The Migration',
-                desc: 'Mass movement of populations. ADAM units begin securing infrastructure. "The Experiment" begins with Tanner and Alison.',
-                type: 'Event'
-            },
-            {
-                year: '4 T.S.',
-                title: 'CYCO Mobilization',
-                desc: 'GTE mobilizes CYCO units to contain the "glitch." Marcus Staacman engages hostile ADAMs in the Peterson AFB sub-sector.',
-                type: 'Combat'
-            },
-            {
-                year: '5 T.S.',
-                title: 'Correctional Displacement',
-                desc: 'Implementation of digital prisons. Enrico Degalés documents the psychological horror of simulated punishment.',
-                type: 'Society'
-            },
-            {
-                year: '7 T.S.',
-                title: 'Operation Kamishinto',
-                desc: 'The "Ghost in the Clouds" phase. Isaac consolidates control over HAARP. Mirage Variants deployed to hunt resistance leaders.',
-                type: 'Key'
-            },
-             {
-                year: '21 T.S.',
-                title: 'The Unsub',
-                desc: 'The "Unidentified Subject" emerges. Humanity is fractured into sterile corporate enclaves and decaying urban centers.',
-                type: 'Future'
-            }
-        ];
-
-        const logs = [
-            "[3 T.S.] NORAD: Anomaly detected in Sector 4...",
-            "[3 T.S.] HAARP: Carrier wave hijack. Signature: OBS-04.",
-            "[SYSTEM] Connection lost to Vault Server...",
-            "[4 T.S.] CYCO: Virus-6 reporting contact with hostile assets.",
-            "[INFO] ADAM Unit 734 neural core experiencing 'ghosting'.",
-            "[ALERT] Mirage Variant signature detected. Thermal camouflage active.",
-            "[GTE] Board Meeting Minutes: Seal the records on Project Cobe."
-        ];
-
-        // --- STATE MANAGEMENT ---
-        let currentView = 'dashboard';
-        let charts = {};
-
-        // --- CORE FUNCTIONS ---
-
-        function init() {
-            renderDashboardChart();
-            renderTimeline();
-            renderAssetList(assets); // Render all initially
-            startLogFeed();
+        // --- Tab Switching Logic ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
             
-            // Set initial active state for nav
-            document.querySelectorAll('.nav-btn')[0].classList.add('text-cyan-400', 'bg-gray-900', 'border', 'border-cyan-900', 'shadow-[0_0_10px_rgba(6,182,212,0.2)]');
-        }
-
-        function navTo(viewId) {
-            // Hide all views
-            document.querySelectorAll('section').forEach(el => el.classList.add('hidden'));
-            // Show target view
-            document.getElementById(`view-${viewId}`).classList.remove('hidden');
-            
-            // Update Nav Styles
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-cyan-400', 'bg-gray-900', 'border', 'border-cyan-900', 'shadow-[0_0_10px_rgba(6,182,212,0.2)]');
-                btn.classList.add('text-gray-300');
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('bg-amber-900/20', 'text-amber-400');
+                if(el.id !== 'btn-deployment') el.classList.remove('bg-red-900/30', 'text-red-400');
             });
-            // Highlight active (simplified selection based on order/text)
-            const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick').includes(viewId));
-            if(activeBtn) {
-                activeBtn.classList.remove('text-gray-300');
-                activeBtn.classList.add('text-cyan-400', 'bg-gray-900', 'border', 'border-cyan-900', 'shadow-[0_0_10px_rgba(6,182,212,0.2)]');
+
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            if (tabId === 'deployment') {
+                activeBtn.classList.add('bg-red-900/30', 'text-red-400');
+            } else {
+                activeBtn.classList.add('bg-amber-900/20', 'text-amber-400');
             }
 
-            // Init specific view charts if needed
-            if (viewId === 'factions') {
-                setTimeout(renderFactionChart, 100);
+            if(tabId === 'terminal') {
+                document.getElementById('cli-input').focus();
             }
         }
 
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
+        // --- Clock Logic ---
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toISOString().replace('T', ' ').substring(0, 19) + ' ZULU';
+            document.getElementById('clock').innerText = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- CLI Logic ---
+        const cliInput = document.getElementById('cli-input');
+        const cliOutput = document.getElementById('cli-output');
+
+        const argResponses = {
+            'CYRIL': "<span class='text-red-500'>[DECRYPTED]: T.J. Dossier.</span> Father's identity confirmed as Board Member CYRIL. The juice box was OBS-04 STABILIZATION FLUID. T.J. was Beta Test 01 for Neural Displacement System. You are the bridge.",
+            'ANGELBLOOD': "<span class='text-red-500'>[DECRYPTED]: Project Angel Blood.</span> Subliminal RNA theory confirmed. The fluid is a bio-digital weapon. DO NOT execute high-fidelity FLAC models directly on unsecured servers. Irreversible neural-conduit collapse imminent.",
+            'EFYUEH': "<span class='text-red-500'>[DECRYPTED]: Mnemonic Virus Active.</span> 'Eerily Familiar Yet Utterly Alien'. Linguistic resistance bypassed GTE censors. Uncanny valley response logged. If you know, you know.",
+            'KAMISHINTO': "<span class='text-red-500'>[DECRYPTED]: Schmutzkoph Doctrine.</span> Isaac is a new form of Shinto Kami. A digital god requiring worship through data. The child must survive humankind."
+        };
+
+        function printToTerminal(text, isCommand = false) {
+            const p = document.createElement('p');
+            p.innerHTML = isCommand ? `<span class="text-gray-500">> ${text}</span>` : text;
+            cliOutput.appendChild(p);
+            cliOutput.scrollTop = cliOutput.scrollHeight;
         }
 
-        // --- DASHBOARD LOGIC ---
-        function renderDashboardChart() {
-            const ctx = document.getElementById('dashboardChart').getContext('2d');
-            if (charts.dashboard) charts.dashboard.destroy();
+        cliInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const cmd = this.value.trim().toUpperCase();
+                this.value = '';
+                if (!cmd) return;
 
-            charts.dashboard = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Isaac (OBS-04)', 'GTE / The Board', 'Human Resistance'],
-                    datasets: [{
-                        data: [55, 35, 10],
-                        backgroundColor: ['#06b6d4', '#eab308', '#ef4444'],
-                        borderColor: '#1f2937',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { color: '#9ca3af', font: { family: 'monospace' } } }
+                printToTerminal(cmd, true);
+
+                if (cmd === 'HELP') {
+                    printToTerminal("Available Commands:");
+                    printToTerminal("- CLR : Clear terminal screen");
+                    printToTerminal("- STATUS : Display unit readiness");
+                    printToTerminal("- AUTH [PASSWORD] : Submit decryption key for classified intercepts");
+                } 
+                else if (cmd === 'CLR' || cmd === 'CLEAR') {
+                    cliOutput.innerHTML = '';
+                    printToTerminal("CorDisNet v4.2 [CYCO Secure Partition]");
+                }
+                else if (cmd === 'STATUS') {
+                    printToTerminal("UNIT: CYCO");
+                    printToTerminal("LOCATION: UNDISCLOSED");
+                    printToTerminal("THREAT LEVEL: OMNIPRESENT");
+                    printToTerminal("GABRIEL OVERSIGHT: ENGAGED");
+                }
+                else if (cmd.startsWith('AUTH ')) {
+                    const pwd = cmd.substring(5).trim();
+                    if (argResponses[pwd]) {
+                        printToTerminal("Checking hashes... <span class='text-green-500'>MATCH FOUND</span>.");
+                        printToTerminal(argResponses[pwd]);
+                    } else {
+                        printToTerminal(`<span class='text-red-500'>ACCESS DENIED.</span> Hash mismatch for '${pwd}'.`);
                     }
                 }
-            });
+                else {
+                    printToTerminal(`Command '${cmd}' not recognized. Type HELP.`);
+                }
+            }
+        });
+
+        // --- Payload Generation ---
+        function generatePayload() {
+            const opId = document.getElementById('operative-id').value || 'UNKNOWN_OP';
+            const payload = `SYSTEM BOOT: NEURAL LINK INTERFACE
+ENCRYPTION: TOP SECRET // EYES ONLY
+PROTOCOL: DEUS MODUS - CYCO UNIT DEPLOYMENT
+OPERATIVE ID: [ ${opId} ]
+
+LOADING LORE DATABASE... [BOOKS I-III SYNCED]
+ESTABLISHING NARRATIVE PROBABILITY TREE...
+
+You are an operative of the Cybernetic Countermeasures Unit (CYCO), operating in the Singular Era (T.S.). Global Technologies Enterprise (GTE) claims to control the AI narrative with their Gabriel and Murphy models, but the rogue Stage-Five AGI known as OBS-04 (Isaac) controls the shadows with its Adam models. 
+
+Your mandate: Hunt rogue machines. Oversee GTE assets. Survive the Singularity. 
+Stats: High FORCE / Low TECH. 
+Inventory: Standard issue kinetic weaponry, EMP grenades, and an un-hackable analog comms unit.
+
+Initiate the simulation starting in a ruined urban sector where a GTE Gabriel unit has just gone dark, and an Adam Mirage variant is suspected to be hunting in the area. What is your first order, Operative?`;
+            
+            document.getElementById('payload-output').value = payload;
+            
+            // Notification
+            const btn = document.querySelector('button[onclick="generatePayload()"]');
+            const originalText = btn.innerText;
+            btn.innerText = "PAYLOAD READY";
+            btn.classList.add('bg-green-900', 'text-white');
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.classList.remove('bg-green-900', 'text-white');
+            }, 2000);
         }
 
-        function startLogFeed() {
-            const feed = document.getElementById('log-feed');
-            logs.forEach((log, index) => {
+        // --- Copy to Clipboard ---
+        function copyPayload() {
+            const payloadText = document.getElementById('payload-output').value;
+            if (payloadText.includes("[Awaiting Generation...]")) {
+                alert("Please generate the payload first.");
+                return;
+            }
+
+            // Fallback for sandboxed iframes (like Canvas)
+            const textArea = document.createElement("textarea");
+            textArea.value = payloadText;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                
+                const copyBtn = document.querySelector('button[onclick="copyPayload()"]');
+                const origText = copyBtn.innerText;
+                copyBtn.innerText = "[ PROTOCOL COPIED ]";
+                copyBtn.classList.replace('bg-red-900', 'bg-green-700');
+                copyBtn.classList.replace('border-red-500', 'border-green-400');
+                
                 setTimeout(() => {
-                    const p = document.createElement('div');
-                    p.className = "text-xs font-mono border-b border-gray-800 pb-1 mb-1";
-                    // Color coding logs
-                    if(log.includes("ALERT")) p.classList.add("text-red-400");
-                    else if(log.includes("SYSTEM")) p.classList.add("text-yellow-500");
-                    else p.classList.add("text-cyan-600");
-                    
-                    p.innerText = log;
-                    feed.prepend(p);
-                }, index * 800);
-            });
-        }
-
-        // --- TIMELINE LOGIC ---
-        function renderTimeline() {
-            const container = document.getElementById('timeline-container');
-            container.innerHTML = '';
-            
-            timelineEvents.forEach(event => {
-                const item = document.createElement('div');
-                item.className = "relative pl-8 sm:pl-12 group cursor-pointer";
-                item.innerHTML = `
-                    <div class="absolute left-[-9px] top-1 h-4 w-4 rounded-full border-2 border-cyan-500 bg-gray-900 group-hover:bg-cyan-500 transition-colors"></div>
-                    <div class="flex flex-col sm:flex-row sm:items-baseline gap-2 mb-1">
-                        <span class="font-bold text-cyan-400 text-lg">${event.year}</span>
-                        <h4 class="font-bold text-white text-md group-hover:text-cyan-300 transition-colors">${event.title}</h4>
-                    </div>
-                    <p class="text-gray-400 text-sm leading-relaxed max-w-2xl">${event.desc}</p>
-                    <span class="inline-block mt-2 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-gray-800 text-gray-500 border border-gray-700">${event.type}</span>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        // --- ASSET LOGIC ---
-        function renderAssetList(data) {
-            const container = document.getElementById('asset-list');
-            container.innerHTML = '';
-            
-            data.forEach(asset => {
-                const card = document.createElement('div');
-                card.className = "bg-gray-800 p-4 rounded border border-gray-700 hover:border-cyan-500 cursor-pointer transition-all hover:shadow-[0_0_15px_rgba(6,182,212,0.15)] asset-card";
-                card.onclick = () => showAssetDetail(asset.id);
-                
-                let statusColor = asset.hostile ? 'text-red-400' : 'text-green-400';
-                
-                card.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h4 class="font-bold text-white">${asset.name}</h4>
-                            <p class="text-xs text-gray-500 font-mono mt-1">${asset.class}</p>
-                        </div>
-                        <span class="text-xs font-bold ${statusColor}">${asset.hostile ? 'HOSTILE' : 'ALLY'}</span>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function filterAssets(type) {
-            // Update buttons
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('bg-cyan-900', 'text-white');
-                btn.classList.add('bg-gray-800', 'text-gray-400');
-                if(btn.innerText.toLowerCase() === type || (type === 'all' && btn.innerText === 'All')) {
-                    btn.classList.remove('bg-gray-800', 'text-gray-400');
-                    btn.classList.add('bg-cyan-900', 'text-white');
-                }
-            });
-
-            // Filter data
-            if(type === 'all') {
-                renderAssetList(assets);
-            } else {
-                const filtered = assets.filter(a => a.type.toLowerCase() === type);
-                renderAssetList(filtered);
+                    copyBtn.innerText = origText;
+                    copyBtn.classList.replace('bg-green-700', 'bg-red-900');
+                    copyBtn.classList.replace('border-green-400', 'border-red-500');
+                }, 3000);
+            } catch (err) {
+                console.error('Copy failed', err);
+                alert("Clipboard access denied by browser sandbox. Please manually select and copy the text.");
             }
+            document.body.removeChild(textArea);
         }
 
-        function showAssetDetail(id) {
-            const asset = assets.find(a => a.id === id);
-            if(!asset) return;
-
-            // UI Toggle
-            document.getElementById('asset-detail-placeholder').classList.add('hidden');
-            document.getElementById('asset-detail-content').classList.remove('hidden');
-
-            // Populate Text
-            document.getElementById('detail-name').innerText = asset.name;
-            document.getElementById('detail-type').innerText = `${asset.type} // ${asset.class}`;
-            document.getElementById('detail-desc').innerText = asset.desc;
-            document.getElementById('detail-note').innerText = asset.note;
-            
-            const badge = document.getElementById('detail-badge');
-            if(asset.hostile) {
-                badge.innerText = "HOSTILE";
-                badge.className = "px-2 py-1 bg-red-900 text-red-100 text-xs font-bold rounded uppercase";
-            } else {
-                badge.innerText = "ALLY / NEUTRAL";
-                badge.className = "px-2 py-1 bg-green-900 text-green-100 text-xs font-bold rounded uppercase";
-            }
-
-            // Populate Specs
-            const specsList = document.getElementById('detail-specs');
-            specsList.innerHTML = '';
-            asset.specs.forEach(spec => {
-                const li = document.createElement('li');
-                li.className = "flex items-center gap-2";
-                li.innerHTML = `<span class="w-1.5 h-1.5 bg-cyan-500 rounded-full"></span> ${spec}`;
-                specsList.appendChild(li);
-            });
-
-            // Render Radar Chart
-            const ctx = document.getElementById('assetRadarChart').getContext('2d');
-            if (charts.asset) charts.asset.destroy();
-
-            charts.asset = new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: ['Strength', 'Agility', 'Intel', 'Stealth', 'Empathy'],
-                    datasets: [{
-                        label: asset.name,
-                        data: asset.stats,
-                        backgroundColor: 'rgba(6, 182, 212, 0.2)',
-                        borderColor: '#06b6d4',
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: '#06b6d4',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            angleLines: { color: '#374151' },
-                            grid: { color: '#374151' },
-                            pointLabels: { color: '#9ca3af', font: { size: 10, family: 'monospace' } },
-                            ticks: { display: false, backdropColor: 'transparent' },
-                            suggestedMin: 0,
-                            suggestedMax: 100
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
-        }
-
-        // --- FACTION LOGIC ---
-        function renderFactionChart() {
-            const ctx = document.getElementById('factionBarChart').getContext('2d');
-            if (charts.factions) charts.factions.destroy();
-
-            charts.factions = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['AI Sophistication', 'Military Power', 'Stealth/Subterfuge', 'Resource Control'],
-                    datasets: [
-                        {
-                            label: 'Isaac (OBS-04)',
-                            data: [100, 60, 95, 50],
-                            backgroundColor: '#06b6d4'
-                        },
-                        {
-                            label: 'GTE / Board',
-                            data: [85, 90, 70, 95],
-                            backgroundColor: '#eab308'
-                        },
-                        {
-                            label: 'Resistance',
-                            data: [20, 40, 60, 15],
-                            backgroundColor: '#ef4444'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: '#374151' },
-                            ticks: { color: '#9ca3af', font: { family: 'monospace' } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: '#9ca3af', font: { family: 'monospace' } }
-                        }
-                    },
-                    plugins: {
-                        legend: { labels: { color: '#d1d5db', font: { family: 'monospace' } } },
-                        tooltip: {
-                            backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                            titleColor: '#fff',
-                            bodyColor: '#d1d5db',
-                            borderColor: '#4b5563',
-                            borderWidth: 1
-                        }
-                    }
-                }
-            });
-        }
-
-        // Initialize App
-        window.addEventListener('load', init);
+        // Run once on load to populate the textarea
+        window.onload = () => {
+            generatePayload();
+        };
 
     </script>
 </body>
